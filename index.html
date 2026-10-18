@@ -1,0 +1,3036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Beyond CRM — Sistema Comercial</title>
+  <meta name="theme-color" content="#0A0A0A">
+  <link rel="icon" type="image/svg+xml" href="assets/beyond-mark.svg">
+  <!-- Beyond CRM — tema escuro fixo + variação de cor (Laranja padrão / Violeta),
+       aplicado ANTES do paint. BX_COR é a paleta usada pelos gráficos e
+       módulos JS (o CSS usa as variáveis --bx-* do styles_beyond.css). -->
+  <script>
+    (function() {
+      var tema = 'laranja';
+      try { if (localStorage.getItem('bx-tema') === 'violeta') tema = 'violeta'; } catch (e) { /* sem storage: padrão */ }
+      var html = document.documentElement;
+      html.setAttribute('data-theme', 'dark');
+      html.setAttribute('data-bx-tema', tema);
+      window.BX_TEMA = tema;
+      window.BX_COR = tema === 'violeta' ? {
+        accent: '#8B5CF6', accent2: '#A78BFA', accent3: '#C4B5FD', deep: '#6D28D9', rgb: '139, 92, 246',
+        up: '#22C55E', down: '#F43F5E', excelClaro: 'F3EEFF', excelMedio: 'D8C8FF',
+        etapas: { lead: '#9CA3AF', ligacao: '#93C5FD', agendamento: '#60A5FA', visita: '#A78BFA', venda: '#22C55E', carteira: '#E5E7EB' },
+        serie: ['#8B5CF6', '#3B82F6', '#22C55E', '#F59E0B', '#6B7280'],
+      } : {
+        accent: '#FF6B05', accent2: '#FF8A3D', accent3: '#FFB27A', deep: '#E05A00', rgb: '255, 107, 5',
+        up: '#3DDC84', down: '#FF5A4E', excelClaro: 'FFF1E6', excelMedio: 'FFC9A3',
+        etapas: { lead: '#A3A3A3', ligacao: '#FDBA74', agendamento: '#FB923C', visita: '#FF6B05', venda: '#22C55E', carteira: '#E5E5E5' },
+        serie: ['#FF6B05', '#3DDC84', '#60A5FA', '#F5A524', '#A3A3A3'],
+      };
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="styles_base.css?v=164">
+  <link rel="stylesheet" href="styles_dark.css?v=164">
+  <link rel="stylesheet" href="styles_beyond.css?v=12">
+</head>
+<body>
+
+<!-- TELA DE LOGIN -->
+<div id="login-screen" style="display:none; min-height:100vh; background:linear-gradient(135deg,var(--d-bgc-141745) 0%,var(--d-bgc-1e2358) 50%,var(--d-bgc-2d3380) 100%); justify-content:center; align-items:center;">
+  <div style="background:var(--d-bgc-ffffff); border-radius:16px; padding:40px 36px; width:100%; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,.4); border-top:4px solid var(--d-brd-d91a3c); position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);">
+    <div style="text-align:center; margin-bottom:28px;">
+      <img src="assets/beyond-mark.svg" alt="" style="height:56px; width:56px; margin-bottom:14px;">
+      <h1 style="font-size:24px; font-weight:600; color:var(--d-txt-1e2358); margin:0;">Beyond <span style="color:var(--bx-accent-2);">CRM</span></h1>
+      <p style="font-size:13px; color:var(--d-txt-6b7280); margin:4px 0 0;">Gestão comercial do lead à carteira</p>
+    </div>
+    <div id="login-error" style="display:none; background:var(--d-bgc-fdf1f4); color:var(--d-txt-a80f2a); padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; text-align:center; border:1px solid var(--d-brd-f7b8c4);"></div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:13px; font-weight:600; color:var(--d-txt-1e2358); display:block; margin-bottom:6px;">E-mail</label>
+      <input type="email" id="login-email" placeholder="seu@empresa.com.br" style="width:100%; padding:10px 14px; border:1.5px solid var(--d-brd-c5c8ec); border-radius:8px; font-size:14px; outline:none; box-sizing:border-box; transition:border-color .2s;" onfocus="this.style.borderColor='#D91A3C'" onblur="this.style.borderColor='#C5C8EC'">
+    </div>
+    <div style="margin-bottom:24px;">
+      <label style="font-size:13px; font-weight:600; color:var(--d-txt-1e2358); display:block; margin-bottom:6px;">Senha</label>
+      <!-- 3B.5: wrapper com botão mostrar/ocultar senha -->
+      <div style="position:relative;">
+        <input type="password" id="login-senha" placeholder="••••••••" style="width:100%; padding:10px 40px 10px 14px; border:1.5px solid var(--d-brd-c5c8ec); border-radius:8px; font-size:14px; outline:none; box-sizing:border-box; transition:border-color .2s;" onfocus="this.style.borderColor='#D91A3C'" onblur="this.style.borderColor='#C5C8EC'" onkeydown="if(event.key==='Enter')handleLogin()">
+        <button type="button" id="login-senha-toggle" tabindex="-1"
+                style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:none;padding:6px 10px;cursor:pointer;color:var(--d-txt-6b7280);"
+                title="Mostrar senha">
+          <i id="login-senha-toggle-icon" class="bi bi-eye-fill"></i>
+        </button>
+      </div>
+    </div>
+    <button id="login-btn" onclick="handleLogin()" style="width:100%; padding:12px; background:linear-gradient(135deg,var(--d-bgc-d91a3c),var(--d-bgc-f0294e)); color:var(--d-txt-ffffff); border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity .2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+      <i class="bi bi-box-arrow-in-right"></i> Entrar
+    </button>
+    <!-- Chamado #62 (Parte B) — recuperação de senha -->
+    <div style="text-align:center; margin-top:14px;">
+      <a href="javascript:void(0)" id="login-esqueci" onclick="esqueciSenha()" style="font-size:13px; color:var(--d-txt-1e2358); text-decoration:none; font-weight:600;">Esqueceu sua senha?</a>
+    </div>
+    <p style="font-size:11px; color:var(--d-txt-9ca3af); text-align:center; margin:16px 0 0;">Beyond Bits Tecnologia © 2026</p>
+  </div>
+</div>
+<style>
+  .spin-icon { animation: spin-anim .8s linear infinite; }
+  @keyframes spin-anim { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  /* PATCH T28 (Pacote 7) — Remove ícone NATIVO de mostrar senha
+     que Edge (::-ms-reveal, ::-ms-clear) e Chrome/Safari
+     (::-webkit-credentials-auto-fill-button) adicionam por conta
+     própria em campos type="password". Como o sistema já tem seu
+     próprio botão de olho (mesmo estilo em Login e cadastro de
+     usuário), o do browser ficava DUPLICADO ao lado. Aplica-se
+     APENAS aos campos de senha do sistema, não afeta outros. */
+  #login-senha::-ms-reveal,
+  #login-senha::-ms-clear,
+  #usr-senha::-ms-reveal,
+  #usr-senha::-ms-clear {
+    display: none;
+  }
+  #login-senha::-webkit-credentials-auto-fill-button,
+  #login-senha::-webkit-textfield-decoration-container,
+  #usr-senha::-webkit-credentials-auto-fill-button,
+  #usr-senha::-webkit-textfield-decoration-container {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+    height: 0;
+    width: 0;
+    margin: 0;
+  }
+</style>
+
+<!-- HEADER -->
+<header class="app-header" id="app-header" style="display:none;">
+  <button class="header-toggle" id="sidebar-toggle" title="Menu"><i class="bi bi-list"></i></button>
+  <a class="logo bx-logo" href="javascript:void(0)" onclick="navigate('dashboard')" aria-label="Beyond CRM — ir para o Dashboard">
+    <img class="bx-logo-mark" src="assets/beyond-mark.svg" alt="">
+    <span class="bx-logo-word">Beyond<span>CRM</span></span>
+  </a>
+  <div class="header-spacer"></div>
+  <div class="search-wrap">
+    <div class="header-search">
+      <i class="bi bi-search"></i>
+      <input type="text" id="header-search" placeholder="Buscar lead, nome, ID...">
+    </div>
+    <div id="search-results"></div>
+  </div>
+  <button type="button" class="bx-tema-btn" id="bx-btn-tema" onclick="BeyondUI.trocarTema()" title="Trocar o tema de cores" aria-label="Trocar o tema de cores">
+    <i class="bi bi-palette2"></i><span class="bx-tema-nome" id="bx-tema-nome">Tema</span>
+  </button>
+  <div class="notif-wrap">
+    <button class="notif-btn" id="notif-btn" title="Notificações">
+      <i class="bi bi-bell-fill"></i>
+      <span id="notif-badge" style="display:none;"></span>
+    </button>
+    <div id="notif-dropdown"></div>
+  </div>
+  <div class="header-user">
+    <div>
+      <div class="header-name">—</div>
+      <div class="header-role">—</div>
+    </div>
+    <div class="header-avatar" id="header-avatar-wrap"><img id="header-avatar-img" src="" alt="" style="display:none;width:36px;height:36px;border-radius:50%;object-fit:cover;"><span id="header-avatar-sigla">—</span></div>
+    <!-- Chamado #59 — alternar modo claro/escuro -->
+    <button id="btn-tema" onclick="toggleTema()" title="Alternar modo claro/escuro" style="background:none;border:none;color:var(--d-txt-6b7280);cursor:pointer;padding:4px 8px;font-size:18px;margin-left:4px;"><i class="bi bi-moon-stars"></i></button>
+    <!-- Chamado #62 (Parte A) — auto-serviço de troca de senha -->
+    <button onclick="abrirTrocarSenha()" title="Alterar minha senha" style="background:none;border:none;color:var(--d-txt-6b7280);cursor:pointer;padding:4px 8px;font-size:18px;margin-left:4px;"><i class="bi bi-key"></i></button>
+    <button onclick="handleLogout()" title="Sair" style="background:none;border:none;color:var(--d-txt-6b7280);cursor:pointer;padding:4px 8px;font-size:18px;margin-left:4px;"><i class="bi bi-box-arrow-right"></i></button>
+  </div>
+</header>
+
+<div class="app-layout" style="display:none;">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <span class="sidebar-label">Principal</span>
+      <button class="nav-link" id="nav-dashboard" onclick="navigate('dashboard')">
+        <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
+        <span class="nav-label">Dashboard</span>
+      </button>
+      <button class="nav-link" id="nav-funil" onclick="navigate('funil')">
+        <span class="nav-icon"><i class="bi bi-kanban-fill"></i></span>
+        <span class="nav-label">Processo de Vendas</span>
+        <span class="nav-badge" id="badge-funil">0</span>
+      </button>
+      <button class="nav-link" id="nav-agenda" onclick="navigate('agenda')">
+        <span class="nav-icon"><i class="bi bi-calendar-week-fill"></i></span>
+        <span class="nav-label">Agenda</span>
+        <!-- v2.3 (Sprint 6 / Hotfix — BUG 001) — populado por
+             AgendaModule._atualizarBadgeSidebar() com a contagem de
+             agendamentos da semana visualizada. -->
+        <span class="nav-badge orange" id="badge-agenda">0</span>
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">Registros</span>
+      <button class="nav-link" id="nav-historico" onclick="navigate('historico')">
+        <span class="nav-icon"><i class="bi bi-telephone-fill"></i></span>
+        <span class="nav-label">Histórico</span>
+      </button>
+      <button class="nav-link" id="nav-relatorios" onclick="navigate('relatorios')">
+        <span class="nav-icon"><i class="bi bi-bar-chart-fill"></i></span>
+        <span class="nav-label">Relatórios</span>
+      </button>
+      <button class="nav-link" id="nav-curriculos" onclick="navigate('curriculos')">
+        <span class="nav-icon"><i class="bi bi-file-person-fill"></i></span>
+        <span class="nav-label">Currículos</span>
+        <span class="nav-badge" id="badge-curriculos" style="background:var(--d-bgc-f59e0b);">0</span>
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">Ajuda</span>
+      <button class="nav-link" id="nav-wiki" onclick="navigate('wiki')">
+        <span class="nav-icon"><i class="bi bi-journal-bookmark-fill"></i></span>
+        <span class="nav-label">Wiki</span>
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">Sistema</span>
+      <button class="nav-link" id="nav-configuracoes" onclick="navigate('configuracoes')">
+        <span class="nav-icon"><i class="bi bi-gear-fill"></i></span>
+        <span class="nav-label">Configurações</span>
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <!-- Beyond CRM — status de sincronização + cartão do usuário (BeyondUI.js) -->
+      <div class="bx-sync" title="Os dados são atualizados em tempo real">
+        <span class="bx-sync-dot"></span>
+        <div><div class="bx-sync-lbl">Dados atualizados</div><div class="bx-sync-time" id="bx-sync-time">agora</div></div>
+      </div>
+      <div class="bx-user-card">
+        <div class="bx-user-av" id="bx-user-av">—</div>
+        <div class="bx-user-info">
+          <div class="bx-user-nome" id="bx-user-nome">—</div>
+          <div class="bx-user-papel" id="bx-user-papel">—</div>
+        </div>
+      </div>
+      <button class="nav-link" onclick="handleLogout()">
+        <span class="nav-icon"><i class="bi bi-box-arrow-right"></i></span>
+        <span class="nav-label">Sair</span>
+      </button>
+    </div>
+  </nav>
+
+  <div id="sidebar-backdrop"></div>
+
+  <!-- Beyond CRM (tema Violeta) — barra de navegação inferior no celular -->
+  <nav class="bx-bottomnav bx-so-violeta" aria-label="Navegação principal">
+    <button type="button" data-p="dashboard" onclick="navigate('dashboard')"><i class="bi bi-grid-1x2-fill"></i><span>Início</span></button>
+    <button type="button" data-p="funil" onclick="navigate('funil')"><i class="bi bi-kanban-fill"></i><span>Funil</span></button>
+    <button type="button" data-p="agenda" onclick="navigate('agenda')"><i class="bi bi-calendar-week-fill"></i><span>Agenda</span></button>
+    <button type="button" data-p="historico" onclick="navigate('historico')"><i class="bi bi-clock-history"></i><span>Histórico</span></button>
+    <button type="button" data-p="mais" onclick="document.getElementById('sidebar-toggle').click()"><i class="bi bi-three-dots"></i><span>Mais</span></button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="app-main" id="app-main">
+
+    <!-- ======================== DASHBOARD ======================== -->
+    <div class="amp-page active" id="page-dashboard">
+      <div class="top-bar">
+        <div>
+          <div class="page-title bx-so-laranja">Dashboard</div>
+          <div class="page-title bx-so-violeta" id="bx-saudacao">Bem-vindo de volta 👋</div>
+          <!-- 3B.7: texto populado dinamicamente no boot (app.js) -->
+          <div class="page-sub" id="dash-resumo-data">Resumo do dia</div>
+        </div>
+        <div class="top-bar-actions">
+          <!-- v2.10 (T24 / Pacote 5) — Dropdown de período estendido.
+               Novas opções: 90 dias, Trimestre atual, Ano atual e
+               "📅 Data personalizada..." (abre o drawer avançado
+               focando no campo daterange). Handler unificado em
+               FunilModule.onPeriodoDashboardChange. -->
+          <select class="form-select form-select-sm" style="width:auto;" id="nm-periodo"
+                  autocomplete="off"
+                  onchange="FunilModule.onPeriodoDashboardChange(this.value);">
+            <option value="hoje">Hoje</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mês</option>
+            <option value="90dias">Últimos 90 dias</option>
+            <option value="trimestre">Trimestre atual</option>
+            <option value="ano">Ano atual</option>
+            <option value="ciclo" selected>Ciclo de comissão (26→25)</option>
+            <option value="custom">📅 Data personalizada...</option>
+          </select>
+          <!-- v1.4.0 — Filtros do Dashboard (feature 4.11 / RN-27) -->
+          <button class="btn-beyond btn-secondary-amp" id="btn-filtro-dashboard"
+                  onclick="FunilModule.abrirFiltroDashboard()"
+                  title="Filtrar por usuário, fonte ou data personalizada">
+            <i class="bi bi-funnel-fill"></i> Filtros
+            <span class="badge bg-primary ms-1" id="btn-filtro-dashboard-count" style="display:none;">0</span>
+          </button>
+          <button class="btn-beyond btn-primary-amp" onclick="novoLead()"><i class="bi bi-plus-lg"></i> Novo Lead</button>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           BEYOND INSIGHTS — renderizado por js/beyond/BeyondDashboard.js
+           Usa os mesmos dados do store e respeita o período/filtros acima.
+           ============================================================ -->
+      <div class="bx-kpis" id="bx-kpis" aria-live="polite"></div>
+
+      <!-- Painel de insights em grade: cada tema arranja as áreas do seu jeito
+           (ver .bx-board em styles_beyond.css). Cards .bx-so-violeta só
+           aparecem no tema Violeta. -->
+      <div class="bx-board">
+        <section class="bx-card bx-a-trend" aria-labelledby="bx-trend-title">
+          <div class="bx-card-head">
+            <div>
+              <h3 class="bx-card-title" id="bx-trend-title">Evolução <span id="bx-trend-metric-lbl">da Receita</span>
+                <i class="bi bi-info-circle" id="bx-trend-dica" title="Nos períodos de 30 e 90 dias a linha mostra a soma móvel dos últimos 7 dias, para suavizar a variação diária."></i></h3>
+              <div class="bx-card-sub" id="bx-trend-sub">—</div>
+              <div class="bx-trend-total bx-so-violeta">
+                <span id="bx-trend-total">—</span>
+                <span class="bx-kpi-delta" id="bx-trend-delta"></span>
+              </div>
+            </div>
+            <div class="bx-head-actions">
+              <div class="bx-seg" id="bx-trend-metric" role="tablist" aria-label="Indicador do gráfico">
+                <button type="button" data-v="receita" class="active">Receita</button>
+                <button type="button" data-v="vendas">Vendas</button>
+                <button type="button" data-v="leads">Leads</button>
+                <button type="button" data-v="ligacoes">Ligações</button>
+              </div>
+              <div class="bx-seg" id="bx-trend-range" role="tablist" aria-label="Janela do gráfico">
+                <button type="button" data-v="7">7D</button>
+                <button type="button" data-v="30" class="active">30D</button>
+                <button type="button" data-v="90">90D</button>
+              </div>
+            </div>
+          </div>
+          <div class="bx-chart" id="bx-trend-chart"></div>
+        </section>
+
+        <section class="bx-card bx-a-insight bx-so-violeta" aria-labelledby="bx-insight-title">
+          <h3 class="bx-card-title" id="bx-insight-title"><i class="bi bi-stars bx-insight-ico"></i> Insight do Período</h3>
+          <div class="bx-insight-txt" id="bx-insight-txt">—</div>
+          <div class="bx-orb" aria-hidden="true"><span></span></div>
+          <button type="button" class="bx-link-btn" onclick="navigate('relatorios')">Ver relatório completo</button>
+        </section>
+
+        <section class="bx-card bx-a-conv" aria-labelledby="bx-conv-title">
+          <div class="bx-card-head">
+            <div>
+              <h3 class="bx-card-title" id="bx-conv-title">Conversão por Etapa
+                <i class="bi bi-info-circle" title="Percentual dos leads que chegaram a uma etapa e avançaram para a seguinte. O traço cinza marca a meta configurada."></i></h3>
+              <div class="bx-card-sub">Funil completo · traço = meta</div>
+            </div>
+          </div>
+          <div class="bx-fatores" id="bx-conv"></div>
+          <div class="bx-card-foot">
+            <button type="button" class="bx-link-btn" onclick="navigate('funil')">Abrir Processo de Vendas <i class="bi bi-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <section class="bx-card bx-a-vendas bx-so-violeta" aria-labelledby="bx-vendas-title">
+          <div class="bx-card-head">
+            <h3 class="bx-card-title" id="bx-vendas-title">Últimas Vendas</h3>
+            <button type="button" class="bx-mini-btn" onclick="navigate('historico')">Ver todas</button>
+          </div>
+          <div class="bx-lista" id="bx-ultimas-vendas"></div>
+        </section>
+
+        <section class="bx-card bx-a-heat" aria-labelledby="bx-heat-title">
+          <div class="bx-card-head">
+            <div>
+              <h3 class="bx-card-title" id="bx-heat-title">Coortes de Leads
+                <i class="bi bi-info-circle" title="Cada linha agrupa os leads pela semana em que entraram. As colunas mostram quantos % deles já chegaram a cada etapa."></i></h3>
+              <div class="bx-card-sub">% de cada semana de entrada que já alcançou a etapa</div>
+            </div>
+          </div>
+          <div class="bx-heat-wrap" id="bx-heatmap"></div>
+          <div class="bx-legend"><span>Baixa conversão</span><div class="bx-legend-bar"></div><span>Alta conversão</span></div>
+        </section>
+
+        <section class="bx-card bx-a-rank" aria-labelledby="bx-rank-title">
+          <div class="bx-card-head">
+            <div>
+              <h3 class="bx-card-title" id="bx-rank-title">Ranking da Equipe
+                <i class="bi bi-info-circle" title="Vendas de cada especialista no ciclo de comissão atual (26→25) em relação à meta de vendas."></i></h3>
+              <div class="bx-card-sub" id="bx-rank-sub">Vendas no ciclo × meta</div>
+            </div>
+          </div>
+          <div class="bx-rank" id="bx-ranking"></div>
+          <div class="bx-card-foot">
+            <button type="button" class="bx-link-btn" onclick="navigate('relatorios')">Ver relatório completo <i class="bi bi-arrow-right"></i></button>
+          </div>
+        </section>
+
+        <section class="bx-card bx-a-donut bx-so-violeta" aria-labelledby="bx-donut-title">
+          <div class="bx-card-head">
+            <div>
+              <h3 class="bx-card-title" id="bx-donut-title">Origem das Vendas</h3>
+              <div class="bx-card-sub">Vendas do período por fonte do lead</div>
+            </div>
+          </div>
+          <div class="bx-donut-wrap" id="bx-donut"></div>
+        </section>
+
+        <section class="bx-card bx-a-semana bx-so-violeta" aria-labelledby="bx-semana-title">
+          <div class="bx-card-head">
+            <div>
+              <h3 class="bx-card-title" id="bx-semana-title">Ligações da Semana</h3>
+              <div class="bx-trend-total"><span id="bx-semana-total">—</span><span class="bx-kpi-delta" id="bx-semana-delta"></span></div>
+            </div>
+            <span class="bx-mini-btn" aria-hidden="true">Últimos 7 dias</span>
+          </div>
+          <div class="bx-chart bx-chart-sm" id="bx-semana-chart"></div>
+        </section>
+      </div>
+
+      <!-- Número Mágico -->
+      <div class="numero-magico mb-4">
+        <div class="nm-header">
+          <div class="nm-title"><i class="bi bi-magic"></i> Número Mágico — Metas de Conversão</div>
+          <!-- Chamado #95 — deixa explícito que os valores "Real" seguem o
+               período selecionado no dropdown acima (não são o histórico
+               total). Sem isso, um usuário com leads mais antigos que o
+               período ativo (ex.: ciclo de comissão) vê "Leads" divergindo
+               do total do Processo de Vendas e acha que é bug. Texto e
+               período são sincronizados via FunilModule (ver
+               _atualizarLabelPeriodoNM, chamado no boot e a cada troca de
+               período). -->
+          <div class="nm-subtitle small text-muted"
+               title='O Processo de Vendas mostra o histórico completo (todos os leads, sempre). Aqui, os valores "Real" contam só o que aconteceu dentro do período selecionado no filtro acima — por isso os dois números podem não bater.'>
+            <i class="bi bi-info-circle"></i> Valores "Real" são do período <strong id="nm-periodo-label">Ciclo de comissão (26→25)</strong> — pode diferir do total histórico do Processo de Vendas
+          </div>
+        </div>
+        <div class="nm-grid">
+          <div class="nm-card" id="nm-card-lead">
+            <div class="nm-stage">Leads</div>
+            <div class="nm-meta" id="nm-meta-lead">0</div>
+            <div class="nm-real">Real: <strong id="nm-real-lead">0</strong></div>
+            <div class="nm-progress"><div class="progress-bar" id="nm-bar-lead" style="height:4px;border-radius:99px;"></div></div>
+            <div class="nm-conv small" id="nm-pct-lead">—</div>
+          </div>
+          <div class="nm-card" id="nm-card-ligacao">
+            <div class="nm-stage">Contatos</div>
+            <div class="nm-meta" id="nm-meta-ligacao">0</div>
+            <div class="nm-real">Real: <strong id="nm-real-ligacao">0</strong></div>
+            <div class="nm-progress"><div class="progress-bar" id="nm-bar-ligacao" style="height:4px;border-radius:99px;"></div></div>
+            <div class="nm-conv small" id="nm-pct-ligacao">—</div>
+          </div>
+          <div class="nm-card" id="nm-card-agendamento">
+            <div class="nm-stage">Agendamentos</div>
+            <div class="nm-meta" id="nm-meta-agendamento">0</div>
+            <div class="nm-real">Real: <strong id="nm-real-agendamento">0</strong></div>
+            <div class="nm-progress"><div class="progress-bar" id="nm-bar-agendamento" style="height:4px;border-radius:99px;"></div></div>
+            <div class="nm-conv small" id="nm-pct-agendamento">—</div>
+          </div>
+          <div class="nm-card" id="nm-card-visita">
+            <div class="nm-stage">Visitas</div>
+            <div class="nm-meta" id="nm-meta-visita">0</div>
+            <div class="nm-real">Real: <strong id="nm-real-visita">0</strong></div>
+            <div class="nm-progress"><div class="progress-bar" id="nm-bar-visita" style="height:4px;border-radius:99px;"></div></div>
+            <div class="nm-conv small" id="nm-pct-visita">—</div>
+          </div>
+          <div class="nm-card" id="nm-card-venda">
+            <div class="nm-stage">Vendas</div>
+            <div class="nm-meta" id="nm-meta-venda">0</div>
+            <div class="nm-real">Real: <strong id="nm-real-venda">0</strong></div>
+            <div class="nm-progress"><div class="progress-bar" id="nm-bar-venda" style="height:4px;border-radius:99px;"></div></div>
+            <div class="nm-conv small" id="nm-pct-venda">—</div>
+          </div>
+          <div class="nm-card" id="nm-card-carteira">
+            <div class="nm-stage">Recomendações</div>
+            <div class="nm-meta" id="nm-meta-carteira">0</div>
+            <div class="nm-real">Real: <strong id="nm-real-carteira">0</strong></div>
+            <div class="nm-progress"><div class="progress-bar" id="nm-bar-carteira" style="height:4px;border-radius:99px;"></div></div>
+            <div class="nm-conv small" id="nm-pct-carteira">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs (Beyond CRM: substituídos pela faixa #bx-kpis; mantidos ocultos
+           porque o FunilModule ainda escreve neles) -->
+      <div class="row g-3 mb-4 bx-legacy-kpis">
+        <div class="col-md-4">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--d-bgc-d1fae5);"><i class="bi bi-telephone-fill text-success fs-5"></i></div>
+            <div class="kpi-info flex-grow-1">
+              <div class="kpi-val" style="color:var(--d-txt-059669);" id="kpi-ligacoes">0</div>
+              <div class="kpi-lbl">Ligações totais</div>
+            </div>
+            <span class="kpi-trend" id="kpi-ligacoes-trend">—</span>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--d-bgc-fef3c7);"><i class="bi bi-currency-dollar text-warning fs-5"></i></div>
+            <div class="kpi-info flex-grow-1">
+              <div class="kpi-val" style="color:var(--d-txt-d97706);" id="kpi-ticket">R$0</div>
+              <div class="kpi-lbl">Ticket Médio</div>
+            </div>
+            <span class="kpi-trend" id="kpi-ticket-trend">—</span>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--d-bgc-dbeafe);"><i class="bi bi-people-fill text-primary fs-5"></i></div>
+            <div class="kpi-info flex-grow-1">
+              <div class="kpi-val" style="color:var(--d-txt-2563eb);" id="kpi-associados">0</div>
+              <div class="kpi-lbl">Associados na Carteira</div>
+            </div>
+            <span class="kpi-trend" id="kpi-associados-trend">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           ATINGIMENTO DE METAS (RF-02) — Sprint 4 Semana 7&8
+           Período fixo: ciclo de comissão (26 → 25, RN-16)
+           Renderizado por MetasModule.renderAtingimento()
+           ============================================================ -->
+      <div class="amp-card mb-4">
+        <div class="amp-card-header">
+          <div class="amp-card-title"><i class="bi bi-bullseye me-1"></i> Atingimento de Metas</div>
+          <span style="font-size:11px;color:var(--text-muted);" id="atm-ciclo-label">—</span>
+        </div>
+        <div id="atingimento-metas-content"></div>
+      </div>
+
+      <!-- Dash Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+          <div class="amp-card h-100">
+            <div class="amp-card-header">
+              <div class="amp-card-title"><i class="bi bi-funnel-fill me-1"></i> Leads no Funil</div>
+              <div class="d-flex gap-2">
+                <!-- Chamado #108 — comparação lado a lado das % sem/com arquivados -->
+                <button class="btn-beyond btn-secondary-amp btn-sm-amp" onclick="FunilModule.abrirDetalheFunilPreview()">Ver detalhado</button>
+                <button class="btn-beyond btn-secondary-amp btn-sm-amp" onclick="navigate('funil')">Ver funil →</button>
+              </div>
+            </div>
+            <div id="funil-preview"></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="amp-card h-100">
+            <div class="amp-card-header">
+              <div class="amp-card-title"><i class="bi bi-lightning-fill me-1"></i> Atividade Recente</div>
+              <button class="btn-beyond btn-secondary-amp btn-sm-amp" onclick="navigate('historico')">Ver tudo →</button>
+            </div>
+            <div id="atividades-feed"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visão do Funil — Taxa de Conversão (DRS 4.1.5) -->
+      <div id="dash-visao-funil" class="mb-4"></div>
+
+      <!-- Chamado #41: Mini-agenda descontinuada.
+           O cliente pediu remoção porque as datas não alinhavam com
+           os horários e a Agenda completa (menu lateral) já supre a
+           necessidade. AgendaModule.renderDashboard() tem guarda
+           (if (!$c.length) return), então nada mais é feito quando
+           #agenda-week-dash não existe. -->
+    </div>
+
+    <!-- ======================== FUNIL / KANBAN ======================== -->
+    <div class="amp-page" id="page-funil">
+      <div class="top-bar">
+        <div>
+          <div class="page-title">Processo de Vendas</div>
+          <div class="page-sub">Gerencie os leads em cada etapa do funil</div>
+        </div>
+        <div class="top-bar-actions">
+          <div class="filtros">
+            <select class="form-select form-select-sm" id="funil-filtro-filial" style="width:auto;" onchange="FunilModule.filtrarPorFilial(this.value)">
+              <option value="">Todas as Unidades</option>
+            </select>
+          </div>
+
+          <!-- v1.3.0 — Toggle "Ver arquivados" (RN-21) -->
+          <button class="btn-beyond btn-secondary-amp" id="btn-toggle-arquivados"
+                  onclick="FunilModule.toggleArquivados()"
+                  title="Mostrar/ocultar leads arquivados">
+            <i class="bi bi-archive"></i>
+            <span id="btn-toggle-arquivados-lbl">Ver arquivados</span>
+            <span class="badge bg-secondary ms-1" id="btn-toggle-arquivados-count" style="display:none;">0</span>
+          </button>
+
+          <!-- v1.4.0 — Botão Filtros Avançados (feature 4.10 / RN-26) -->
+          <button class="btn-beyond btn-secondary-amp" id="btn-filtro-avancado"
+                  onclick="FunilModule.abrirFiltroAvancado()"
+                  title="Filtrar leads por tag, fonte, data, mensalidade, FIPE, categoria etc.">
+            <i class="bi bi-funnel-fill"></i> Filtros
+            <span class="badge bg-primary ms-1" id="btn-filtro-avancado-count" style="display:none;">0</span>
+          </button>
+
+          <!-- v1.3.0 — Seleção múltipla (feature 4.3) — só gerente/supervisor vê -->
+          <button class="btn-beyond btn-secondary-amp" id="btn-modo-selecao"
+                  onclick="FunilModule.entrarModoSelecao()"
+                  style="display:none;"
+                  title="Selecionar vários leads para transferir em lote">
+            <i class="bi bi-check2-square"></i> Selecionar
+          </button>
+
+          <!-- v1.3.0 — Ações do modo seleção (escondidas por padrão) -->
+          <div id="selecao-actions" style="display:none;">
+            <span class="badge bg-info me-2" id="selecao-count">0 selecionado(s)</span>
+            <button class="btn-beyond btn-primary-amp" onclick="TransferenciaLoteModule.abrirDosSelecionados()">
+              <i class="bi bi-arrow-left-right"></i> Transferir Selecionados
+            </button>
+            <button class="btn-beyond btn-secondary-amp" onclick="FunilModule.sairDoModoSelecao()">
+              <i class="bi bi-x-lg"></i> Cancelar
+            </button>
+          </div>
+
+          <button class="btn-beyond btn-secondary-amp" onclick="openModal('modal-importar-leads')" title="Importar leads via planilha CSV"><i class="bi bi-file-earmark-arrow-up"></i> Importar Carteira</button>
+          <button class="btn-beyond btn-primary-amp" onclick="novoLead()"><i class="bi bi-plus-lg"></i> Novo Lead</button>
+        </div>
+      </div>
+      <div class="kanban-wrap" id="kanban-board"></div>
+    </div>
+
+    <!-- ======================== AGENDA ======================== -->
+    <div class="amp-page" id="page-agenda">
+      <!-- BARRA SUPERIOR ESTILO GOOGLE CALENDAR -->
+      <div class="gcal-topbar">
+        <div class="gcal-topbar-left">
+          <button class="gcal-btn-hoje" onclick="AgendaModule.irHoje()">Hoje</button>
+          <div class="gcal-nav-arrows">
+            <button class="gcal-arrow" onclick="AgendaModule.navSemana(-1)" title="Semana anterior"><i class="bi bi-chevron-left"></i></button>
+            <button class="gcal-arrow" onclick="AgendaModule.navSemana(1)"  title="Próxima semana"><i class="bi bi-chevron-right"></i></button>
+          </div>
+          <span id="gcal-periodo-label" class="gcal-periodo"></span>
+        </div>
+        <div class="gcal-topbar-right">
+          <!-- v2.1 (Sprint 6 / Patch 1 — RF-37) — Filtros da Agenda -->
+          <button class="btn-beyond btn-secondary-amp btn-sm-amp" id="btn-filtro-agenda"
+                  onclick="AgendaModule.abrirFiltroAvancado()"
+                  title="Filtrar agenda por período, especialista e filial">
+            <i class="bi bi-funnel-fill"></i> Filtros
+            <span class="badge bg-primary ms-1" id="btn-filtro-agenda-count" style="display:none;">0</span>
+          </button>
+          <div class="gcal-view-switch">
+            <button class="gcal-view-btn active" id="gcal-btn-semana" onclick="AgendaModule.setView('semana')">Semana</button>
+            <button class="gcal-view-btn" id="gcal-btn-dia"    onclick="AgendaModule.setView('dia')">Dia</button>
+          </div>
+          <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="AgendaModule.novoAgendamento()">
+            <i class="bi bi-plus-lg"></i> Novo agendamento
+          </button>
+        </div>
+      </div>
+
+      <!-- GRADE GOOGLE CALENDAR -->
+      <div class="gcal-wrapper">
+        <div class="gcal-container" id="gcal-container">
+          <!-- Renderizado pelo JS -->
+        </div>
+      </div>
+
+      <!-- MODAL DETALHE DO SLOT -->
+      <div id="gcal-popover" class="gcal-popover" style="display:none;">
+        <div class="gcal-popover-header">
+          <span id="gcal-pop-titulo" class="gcal-popover-titulo"></span>
+          <button class="gcal-popover-close" onclick="AgendaModule.fecharPopover()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="gcal-popover-body">
+          <div class="gcal-pop-row"><i class="bi bi-clock"></i><span id="gcal-pop-horario"></span></div>
+          <div class="gcal-pop-row"><i class="bi bi-person-fill"></i><span id="gcal-pop-consultor"></span></div>
+          <div class="gcal-pop-row" id="gcal-pop-cliente-row"><i class="bi bi-person-badge"></i><span id="gcal-pop-cliente"></span></div>
+          <div class="gcal-pop-row" id="gcal-pop-tipo-row"><i class="bi bi-car-front-fill"></i><span id="gcal-pop-tipo"></span></div>
+          <div class="gcal-pop-row" id="gcal-pop-local-row"><i class="bi bi-geo-alt-fill"></i><span id="gcal-pop-local"></span></div>
+        </div>
+        <!-- Chamado #86 — excluir o agendamento direto da agenda.
+             _uuid do evento fica em data-uuid (setado por _abrirEvento). -->
+        <div class="gcal-popover-footer" style="padding:8px 12px;border-top:1px solid var(--d-brd-e5e7eb,#e5e7eb);">
+          <button class="btn-beyond btn-secondary-amp btn-sm-amp" id="gcal-pop-excluir"
+                  style="color:var(--d-txt-dc2626,#dc2626);border-color:var(--d-brd-dc2626,#dc2626);width:100%;"
+                  onclick="event.stopPropagation(); AgendaModule.excluirEventoPopover()">
+            <i class="bi bi-trash"></i> Excluir Agendamento
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== HISTÓRICO ======================== -->
+    <div class="amp-page" id="page-historico">
+      <div class="top-bar">
+        <div>
+          <div class="page-title">Histórico</div>
+          <div class="page-sub">Registro completo de todas as interações</div>
+          <!-- Chamado #104 — totalizador que respeita os filtros ativos (tipo,
+               período, usuário, resultado, filial, código) — vem direto do
+               banco (mesma fonte da lista), não do que já foi carregado na tela. -->
+          <div class="page-sub" id="historico-total-sub" style="font-weight:600;"></div>
+        </div>
+        <div class="top-bar-actions">
+          <!-- v2.1 (Sprint 6 / Patch 1 — 6.4) — Filtros avançados do Histórico -->
+          <button class="btn-beyond btn-secondary-amp btn-sm-amp" id="btn-filtro-historico"
+                  onclick="HistoricoModule.abrirFiltroAvancado()"
+                  title="Filtrar por período, especialista, resultado e filial">
+            <i class="bi bi-funnel-fill"></i> Filtros
+            <span class="badge bg-primary ms-1" id="btn-filtro-historico-count" style="display:none;">0</span>
+          </button>
+          <!-- v1.3.0 — Filtro por código do card (feature 4.12) -->
+          <div class="hist-filtro-codigo-wrap" style="position:relative;">
+            <i class="bi bi-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--d-txt-6b7280);pointer-events:none;"></i>
+            <input type="text" id="hist-filtro-codigo" class="form-control form-control-sm"
+                   placeholder="Filtrar por código do lead (ex: 00042)"
+                   style="width:280px;padding-left:32px;"
+                   oninput="HistoricoModule.reRender()">
+          </div>
+          <div class="filtros" data-target="historico">
+            <button class="filtro-btn active" data-filter="todas">Todas</button>
+            <button class="filtro-btn" data-filter="ligacao">Ligação</button>
+            <button class="filtro-btn" data-filter="agendamento">Agendamento</button>
+            <button class="filtro-btn" data-filter="visita">Visita</button>
+            <button class="filtro-btn" data-filter="venda">Venda</button>
+            <button class="filtro-btn" data-filter="carteira">Carteira</button>
+          </div>
+        </div>
+      </div>
+      <div class="amp-card">
+        <div id="historico-list"></div>
+        <!-- Chamado #104 — paginação (substituiu o corte fixo de 40 itens) -->
+        <div id="historico-rodape" style="padding:12px 16px;text-align:center;border-top:1px solid var(--d-brd-e5e7eb);"></div>
+      </div>
+    </div>
+
+    <!-- ======================== RELATÓRIOS ======================== -->
+    <div class="amp-page" id="page-relatorios">
+      <div class="top-bar">
+        <div><div class="page-title">Relatórios</div><div class="page-sub">Análises e indicadores comerciais</div></div>
+      </div>
+
+      <!-- PAINEL DE EXPORTAÇÃO EXCEL -->
+      <div class="amp-card mb-4" id="secao-relatorios-gerente">
+        <div class="amp-card-header">
+          <div class="amp-card-title"><i class="bi bi-file-earmark-excel me-1" style="color:var(--d-txt-1d6f42);"></i> Exportar Relatórios em Excel</div>
+        </div>
+        <div class="p-3 pt-1">
+          <div class="row g-3">
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarLeads()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-dbeafe);color:var(--d-txt-1d4ed8);"><i class="bi bi-kanban-fill"></i></div>
+                <div class="rel-export-label">Leads por Etapa</div>
+                <div class="rel-export-sub">ID, nome, telefone, etapa, fonte, captador</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarLigacoes()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-d1fae5);color:var(--d-txt-059669);"><i class="bi bi-telephone-fill"></i></div>
+                <div class="rel-export-label">Histórico de Ligações</div>
+                <div class="rel-export-sub">Lead, resultado, tentativa, especialista</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarVendas()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-d1fae5);color:var(--d-txt-1b6b3a);"><i class="bi bi-currency-dollar"></i></div>
+                <div class="rel-export-label">Vendas do Mês</div>
+                <div class="rel-export-sub">Adesão, mensalidade, rastreador, data</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarCarteira()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-ede9fe);color:var(--d-txt-7c3aed);"><i class="bi bi-people-fill"></i></div>
+                <div class="rel-export-label">Carteira de Associados</div>
+                <div class="rel-export-sub">Placa, mensalidade, aniversário, captador</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarFunil()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-fef3c7);color:var(--d-txt-d97706);"><i class="bi bi-funnel-fill"></i></div>
+                <div class="rel-export-label">Conversão do Funil</div>
+                <div class="rel-export-sub">Totais e taxas de conversão por etapa</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarDesempenho()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-fee2e2);color:var(--d-txt-dc2626);"><i class="bi bi-person-lines-fill"></i></div>
+                <div class="rel-export-label">Desempenho por Especialista</div>
+                <div class="rel-export-sub">Ligações, agendamentos, vendas por consultor</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarLeadsPorFonte()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-dbeafe);color:var(--d-txt-2c2664);"><i class="bi bi-diagram-3-fill"></i></div>
+                <div class="rel-export-label">Leads por Fonte</div>
+                <div class="rel-export-sub">Consolidado + detalhado + cruzamento com especialista</div>
+                <div class="rel-export-btn"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="rel-export-card" onclick="RelatoriosModule.exportarCompleto()">
+                <div class="rel-export-icon" style="background:var(--d-bgc-f3f4f6);color:var(--d-txt-1e2358);"><i class="bi bi-file-earmark-spreadsheet-fill"></i></div>
+                <div class="rel-export-label">Relatório Completo</div>
+                <div class="rel-export-sub">Todas as abas em um único arquivo</div>
+                <div class="rel-export-btn" style="background:var(--d-bgc-1e2358);color:var(--d-txt-ffffff);"><i class="bi bi-download"></i> Baixar .xlsx</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TAXA DE CONVERSÃO (DRS 4.6 — completo) ============ -->
+      <div id="rel-taxa-conversao" class="amp-card mb-4">
+        <div class="amp-card-header">
+          <div class="amp-card-title">
+            <i class="bi bi-graph-up-arrow me-1" style="color:var(--d-txt-1e2761);"></i>
+            Taxa de Conversão por Etapa
+          </div>
+          <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="TaxaConversaoModule.exportarExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </button>
+        </div>
+
+        <!-- Filtros -->
+        <div style="padding:14px 18px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-f9fafb);">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Período</label>
+              <!-- Chamado #106 — "Ciclo de comissão" como padrão sempre que o
+                   relatório é aberto (não só no primeiro load — ver Router.ir
+                   em router.js, que força o valor de novo a cada navegação
+                   pra Relatórios, senão o navegador restaura o último valor
+                   escolhido, igual ao #79 no dashboard). -->
+              <select id="rel-tc-filtro-periodo" class="form-select form-select-sm" onchange="TaxaConversaoModule.onFiltroChange()">
+                <option value="mes-vigente">Mês vigente</option>
+                <option value="esta-semana">Esta semana</option>
+                <option value="ciclo-comissao" selected>Ciclo de comissão (26 → 25)</option>
+                <option value="ultimos-30">Últimos 30 dias</option>
+                <option value="todos">Todos os períodos</option>
+                <option value="custom">Personalizado…</option>
+              </select>
+            </div>
+            <div class="col-md-3 position-relative">
+              <label class="form-label small mb-1">Usuário</label>
+              <button type="button" id="rel-tc-esp-btn" class="form-select form-select-sm text-start" style="cursor:pointer;" onclick="TaxaConversaoModule.toggleDropdownEsp()">
+                <span id="rel-tc-esp-btn-label">Todos os usuários</span>
+              </button>
+              <div id="rel-tc-esp-dropdown" style="display:none;position:absolute;top:100%;left:12px;right:12px;z-index:1000;background:var(--d-bgc-ffffff);border:1px solid var(--d-brd-d1d5db);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:320px;overflow-y:auto;margin-top:2px;">
+                <!-- Chamado #47 (revisão) — toggle dentro do dropdown -->
+                <div class="form-check" style="padding:8px 10px 4px 30px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-fafafa);">
+                  <input class="form-check-input" type="checkbox" id="rel-tc-inativos"
+                         onchange="TaxaConversaoModule._popularListaEsp()">
+                  <label class="form-check-label small" for="rel-tc-inativos" style="cursor:pointer;">
+                    Incluir inativos
+                  </label>
+                </div>
+                <div id="rel-tc-esp-lista" style="padding:6px;"></div>
+              </div>
+              <!-- Retro-compat: hidden pra o resto do módulo continuar lendo #rel-tc-filtro-esp -->
+              <input type="hidden" id="rel-tc-filtro-esp" value="">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Filial</label>
+              <select id="rel-tc-filtro-filial" class="form-select form-select-sm" onchange="TaxaConversaoModule.renderRelatorio()">
+                <option value="">Todas as filiais</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <button class="btn-beyond btn-secondary-amp btn-sm-amp w-100" onclick="TaxaConversaoModule.renderRelatorio()">
+                <i class="bi bi-arrow-clockwise"></i> Atualizar
+              </button>
+            </div>
+          </div>
+          <!-- Custom range (visível só quando período = custom) -->
+          <div id="rel-tc-custom-wrap" style="display:none;margin-top:10px;">
+            <div class="row g-2">
+              <div class="col-md-3">
+                <label class="form-label small mb-1">De</label>
+                <input type="date" id="rel-tc-dt-inicio" class="form-control form-control-sm" onchange="TaxaConversaoModule.renderRelatorio()">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Até</label>
+                <input type="date" id="rel-tc-dt-fim" class="form-control form-control-sm" onchange="TaxaConversaoModule.renderRelatorio()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo cards -->
+        <div style="padding:16px 18px 0;">
+          <div id="rel-taxa-conversao-resumo"></div>
+        </div>
+
+        <!-- Grid principal com as barras -->
+        <div style="padding:16px 18px;">
+          <div id="rel-taxa-conversao-grid"></div>
+        </div>
+      </div>
+
+      <!-- ============ ANIVERSARIANTES DO MÊS (DRS 4.6 — Feature 5.1) ============ -->
+      <div id="rel-aniversariantes" class="amp-card mb-4">
+        <div class="amp-card-header">
+          <div class="amp-card-title">
+            <i class="bi bi-cake2-fill me-1" style="color:var(--d-txt-d91a3c);"></i>
+            Aniversariantes do mês
+          </div>
+          <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="AniversariantesModule.exportarExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </button>
+        </div>
+
+        <!-- Filtros -->
+        <div style="padding:14px 18px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-f9fafb);">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-2">
+              <label class="form-label small mb-1">Mês</label>
+              <select id="rel-aniv-mes" class="form-select form-select-sm" onchange="AniversariantesModule.renderRelatorio()"></select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small mb-1">Ano</label>
+              <select id="rel-aniv-ano" class="form-select form-select-sm" onchange="AniversariantesModule.renderRelatorio()"></select>
+            </div>
+            <div class="col-md-3 position-relative">
+              <label class="form-label small mb-1">Usuário</label>
+              <button type="button" id="rel-aniv-esp-btn" class="form-select form-select-sm text-start" style="cursor:pointer;" onclick="AniversariantesModule.toggleDropdownEsp()">
+                <span id="rel-aniv-esp-btn-label">Todos os usuários</span>
+              </button>
+              <div id="rel-aniv-esp-dropdown" style="display:none;position:absolute;top:100%;left:12px;right:12px;z-index:1000;background:var(--d-bgc-ffffff);border:1px solid var(--d-brd-d1d5db);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:320px;overflow-y:auto;margin-top:2px;">
+                <!-- Chamado #47 (revisão) — toggle dentro do dropdown -->
+                <div class="form-check" style="padding:8px 10px 4px 30px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-fafafa);">
+                  <input class="form-check-input" type="checkbox" id="rel-aniv-inativos"
+                         onchange="AniversariantesModule._popularListaEsp()">
+                  <label class="form-check-label small" for="rel-aniv-inativos" style="cursor:pointer;">
+                    Incluir inativos
+                  </label>
+                </div>
+                <div id="rel-aniv-esp-lista" style="padding:6px;"></div>
+              </div>
+              <!-- Retro-compat: campo hidden que guarda o id selecionado (o
+                   resto do código do módulo lê $('#rel-aniv-esp').val()) -->
+              <input type="hidden" id="rel-aniv-esp" value="">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small mb-1">Filial</label>
+              <select id="rel-aniv-filial" class="form-select form-select-sm" onchange="AniversariantesModule.renderRelatorio()">
+                <option value="">Todas as filiais</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Ordenar por</label>
+              <select id="rel-aniv-ordem" class="form-select form-select-sm" onchange="AniversariantesModule.renderRelatorio()">
+                <option value="dia">Dia do aniversário</option>
+                <option value="pendentes">Pendentes primeiro</option>
+                <option value="parabenizados">Parabenizados primeiro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contador -->
+        <div style="padding:14px 18px;border-bottom:1px solid var(--d-brd-e5e7eb);">
+          <div id="rel-aniv-contador"></div>
+        </div>
+
+        <!-- Lista -->
+        <div style="padding:14px 18px;">
+          <div id="rel-aniv-grid"></div>
+        </div>
+      </div>
+
+      <!-- ============ PERFORMANCE POR ESPECIALISTA (DRS 4.6 — Feature 5.3) ============ -->
+      <div id="rel-performance" class="amp-card mb-4">
+        <div class="amp-card-header">
+          <div class="amp-card-title">
+            <i class="bi bi-trophy-fill me-1" style="color:var(--d-txt-f59e0b);"></i>
+            Performance individual por especialista
+          </div>
+          <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="PerformanceEspecialistasModule.exportarExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </button>
+        </div>
+
+        <!-- Filtros -->
+        <div style="padding:14px 18px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-f9fafb);">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Período</label>
+              <select id="rel-perf-periodo" class="form-select form-select-sm" onchange="PerformanceEspecialistasModule.onFiltroChange()">
+                <option value="ultimos-30" selected>Últimos 30 dias</option>
+                <option value="mes-vigente">Mês vigente</option>
+                <option value="esta-semana">Esta semana</option>
+                <option value="ciclo-comissao">Ciclo de comissão (26 → 25)</option>
+                <option value="todos">Todos os períodos</option>
+                <option value="custom">Personalizado…</option>
+              </select>
+            </div>
+            <div class="col-md-3 position-relative">
+              <label class="form-label small mb-1">Usuários</label>
+              <button type="button" id="rel-perf-esp-btn" class="form-select form-select-sm text-start" style="cursor:pointer;" onclick="PerformanceEspecialistasModule.toggleDropdownEsp()">
+                <span id="rel-perf-esp-btn-label">Todos os usuários</span>
+              </button>
+              <div id="rel-perf-esp-dropdown" style="display:none;position:absolute;top:100%;left:12px;right:12px;z-index:1000;background:var(--d-bgc-ffffff);border:1px solid var(--d-brd-d1d5db);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:320px;overflow-y:auto;margin-top:2px;">
+                <div style="padding:8px 10px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-f9fafb);display:flex;justify-content:space-between;font-size:11px;">
+                  <a href="#" onclick="event.preventDefault();PerformanceEspecialistasModule.marcarTodosEsp(true)" style="color:var(--d-txt-1e2761);text-decoration:none;">Selecionar todos</a>
+                  <a href="#" onclick="event.preventDefault();PerformanceEspecialistasModule.marcarTodosEsp(false)" style="color:var(--d-txt-dc2626);text-decoration:none;">Limpar</a>
+                </div>
+                <!-- Chamado #47 (revisão) — toggle Incluir inativos -->
+                <div class="form-check" style="padding:8px 10px 4px 30px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-fafafa);">
+                  <input class="form-check-input" type="checkbox" id="rel-perf-inativos"
+                         onchange="PerformanceEspecialistasModule._recarregarListaEsp()">
+                  <label class="form-check-label small" for="rel-perf-inativos" style="cursor:pointer;">
+                    Incluir inativos
+                  </label>
+                </div>
+                <div id="rel-perf-esp-lista" style="padding:6px;"></div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small mb-1">Filial</label>
+              <select id="rel-perf-filial" class="form-select form-select-sm" onchange="PerformanceEspecialistasModule.renderRelatorio()">
+                <option value="">Todas as filiais</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small mb-1">Ordenar por</label>
+              <select id="rel-perf-ordem" class="form-select form-select-sm" onchange="PerformanceEspecialistasModule.renderRelatorio()">
+                <option value="vendas">Vendas (padrão)</option>
+                <option value="conversao">Taxa de conversão</option>
+                <option value="valor">Valor de mensalidade</option>
+                <option value="leads">Leads captados</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn-beyond btn-secondary-amp btn-sm-amp w-100" onclick="PerformanceEspecialistasModule.renderRelatorio()">
+                <i class="bi bi-arrow-clockwise"></i> Atualizar
+              </button>
+            </div>
+          </div>
+          <!-- Custom range -->
+          <div id="rel-perf-custom-wrap" style="display:none;margin-top:10px;">
+            <div class="row g-2">
+              <div class="col-md-3">
+                <label class="form-label small mb-1">De</label>
+                <input type="date" id="rel-perf-dt-inicio" class="form-control form-control-sm" onchange="PerformanceEspecialistasModule.renderRelatorio()">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Até</label>
+                <input type="date" id="rel-perf-dt-fim" class="form-control form-control-sm" onchange="PerformanceEspecialistasModule.renderRelatorio()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo agregado -->
+        <div style="padding:16px 18px 0;">
+          <div id="rel-perf-resumo"></div>
+        </div>
+
+        <!-- Grid de cards por especialista -->
+        <div style="padding:16px 18px;">
+          <div id="rel-perf-grid"></div>
+        </div>
+      </div>
+
+      <!-- Chamado #100 (reaberto) — Relatório Analítico (gerente-only).
+           Mostra, especialista por especialista, "Leads" do dashboard
+           vs total do Processo de Vendas, e explica a diferença. -->
+      <div id="rel-analitico" class="amp-card mb-4" style="display:none;">
+        <div class="amp-card-header">
+          <div class="amp-card-title">
+            <i class="bi bi-clipboard-data-fill me-1" style="color:var(--d-txt-1e2761);"></i>
+            Analítico — Leads (Dashboard) vs Processo de Vendas
+          </div>
+          <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="RelatorioAnaliticoModule.exportarExcel()">
+            <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+          </button>
+        </div>
+
+        <!-- Legenda -->
+        <div style="padding:12px 18px;background:var(--d-bgc-eef2ff);border-bottom:1px solid var(--d-brd-e5e7eb);font-size:12px;color:var(--d-txt-374151);">
+          <i class="bi bi-info-circle"></i>
+          <strong>"Leads (Dashboard)"</strong> conta clientes distintos (responsável atual, sem duplicar quem comprou 2º veículo).
+          <strong>"Processo de Vendas"</strong> mostra um card por processo de venda (inclui o card do veículo adicional).
+          A diferença entre os dois deve ser igual à coluna <strong>"🚗 Veículos adicionais"</strong> — quando não for, a linha fica marcada <strong>⚠️ Investigar</strong>.
+        </div>
+
+        <!-- Filtros -->
+        <div style="padding:14px 18px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-f9fafb);">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Período</label>
+              <select id="rel-an-periodo" class="form-select form-select-sm" onchange="RelatorioAnaliticoModule.onFiltroChange()">
+                <option value="todos" selected>Todos os períodos</option>
+                <option value="ciclo-comissao">Ciclo de comissão (26 → 25)</option>
+                <option value="mes-vigente">Mês vigente</option>
+                <option value="esta-semana">Esta semana</option>
+                <option value="ultimos-30">Últimos 30 dias</option>
+                <option value="custom">Personalizado…</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Filial</label>
+              <select id="rel-an-filtro-filial" class="form-select form-select-sm" onchange="RelatorioAnaliticoModule.renderRelatorio()">
+                <option value="">Todas as filiais</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small mb-1">Ordenar por</label>
+              <select id="rel-an-ordem" class="form-select form-select-sm" onchange="RelatorioAnaliticoModule.renderRelatorio()">
+                <option value="nome">Nome (A-Z)</option>
+                <option value="diferenca">Maior diferença</option>
+                <option value="kanban">Maior Processo de Vendas</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-center">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rel-an-inativos" onchange="RelatorioAnaliticoModule.renderRelatorio()">
+                <label class="form-check-label small" for="rel-an-inativos" style="cursor:pointer;">Incluir inativos</label>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <button class="btn-beyond btn-secondary-amp btn-sm-amp w-100" onclick="RelatorioAnaliticoModule.renderRelatorio()">
+                <i class="bi bi-arrow-clockwise"></i> Atualizar
+              </button>
+            </div>
+          </div>
+          <!-- Custom range -->
+          <div id="rel-an-custom-wrap" style="display:none;margin-top:10px;">
+            <div class="row g-2">
+              <div class="col-md-3">
+                <label class="form-label small mb-1">De</label>
+                <input type="date" id="rel-an-dt-inicio" class="form-control form-control-sm" onchange="RelatorioAnaliticoModule.renderRelatorio()">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Até</label>
+                <input type="date" id="rel-an-dt-fim" class="form-control form-control-sm" onchange="RelatorioAnaliticoModule.renderRelatorio()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo agregado -->
+        <div style="padding:16px 18px 0;">
+          <div id="rel-analitico-resumo"></div>
+        </div>
+
+        <!-- Tabela detalhada por usuário -->
+        <div style="padding:16px 18px;overflow-x:auto;">
+          <table class="table table-sm" style="min-width:720px;">
+            <thead>
+              <tr style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--d-txt-6b7280);">
+                <th>Usuário</th>
+                <th class="text-center">Leads (Dashboard)</th>
+                <th class="text-center">Processo de Vendas</th>
+                <th class="text-center">Diferença</th>
+                <th class="text-center">🚗 Veículos adicionais</th>
+                <th class="text-center">Arquivados inclusos</th>
+                <th class="text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="rel-analitico-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chamado #46 — Ligações da Carteira (Recomendação + Cuidar da Base) -->
+      <div id="rel-ligacoes-carteira" class="amp-card mb-4">
+        <div class="amp-card-header">
+          <div class="amp-card-title"><i class="bi bi-telephone-outbound-fill me-1"></i> Ligações da Carteira por Especialista</div>
+          <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="LigacoesCarteiraModule.exportarExcel()"><i class="bi bi-file-earmark-excel"></i> Exportar Excel</button>
+        </div>
+        <div class="row g-3 mb-2" style="padding:12px 12px 0;">
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Período</label>
+            <select id="rel-lc-periodo" class="form-select form-select-sm" onchange="LigacoesCarteiraModule.onFiltroChange()">
+              <option value="30">Últimos 30 dias</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="60">Últimos 60 dias</option>
+              <option value="90">Últimos 90 dias</option>
+              <option value="mes">Mês atual</option>
+              <option value="tudo">Todo o período</option>
+              <option value="custom">Personalizado</option>
+            </select>
+          </div>
+          <div class="col-md-3 position-relative">
+            <label class="form-label small mb-1">Usuário</label>
+            <button type="button" id="rel-lc-esp-btn" class="form-select form-select-sm text-start" style="cursor:pointer;" onclick="LigacoesCarteiraModule.toggleDropdownEsp()">
+              <span id="rel-lc-esp-btn-label">Todos os usuários</span>
+            </button>
+            <div id="rel-lc-esp-dropdown" style="display:none;position:absolute;top:100%;left:12px;right:12px;z-index:1000;background:var(--d-bgc-ffffff);border:1px solid var(--d-brd-d1d5db);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:320px;overflow-y:auto;margin-top:2px;">
+              <div class="form-check" style="padding:8px 10px 4px 30px;border-bottom:1px solid var(--d-brd-e5e7eb);background:var(--d-bgc-fafafa);">
+                <input class="form-check-input" type="checkbox" id="rel-lc-inativos" onchange="LigacoesCarteiraModule._popularListaEsp()">
+                <label class="form-check-label small" for="rel-lc-inativos" style="cursor:pointer;">Incluir inativos</label>
+              </div>
+              <div id="rel-lc-esp-lista" style="padding:6px;"></div>
+            </div>
+            <input type="hidden" id="rel-lc-filtro-esp" value="">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Filial</label>
+            <select id="rel-lc-filial" class="form-select form-select-sm" onchange="LigacoesCarteiraModule.renderRelatorio()">
+              <option value="">Todas as filiais</option>
+            </select>
+          </div>
+        </div>
+        <div id="rel-lc-custom-wrap" style="display:none;padding:0 12px 10px;">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label small mb-1">De</label>
+              <input type="date" id="rel-lc-dt-inicio" class="form-control form-control-sm" onchange="LigacoesCarteiraModule.renderRelatorio()">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small mb-1">Até</label>
+              <input type="date" id="rel-lc-dt-fim" class="form-control form-control-sm" onchange="LigacoesCarteiraModule.renderRelatorio()">
+            </div>
+          </div>
+        </div>
+        <div id="rel-lc-resumo" style="padding:0 12px;"></div>
+        <div id="rel-lc-grid" style="padding:0 12px 12px;"></div>
+      </div>
+
+      <!-- RELATÓRIO DINÂMICO COMPLETO -->
+      <div id="rel-dashboard"></div>
+    </div>
+
+    <!-- ======================== CURRÍCULOS ======================== -->
+    <div class="amp-page" id="page-curriculos">
+      <div class="top-bar">
+        <div><div class="page-title">Currículos</div><div class="page-sub">Gestão do processo seletivo</div></div>
+        <div class="top-bar-actions">
+          <div class="filtros" data-target="curriculos">
+            <button class="filtro-btn active" data-filter="todos">Todos</button>
+            <button class="filtro-btn" data-filter="em_analise">Em Análise</button>
+            <button class="filtro-btn" data-filter="entrevista">Entrevista</button>
+            <button class="filtro-btn" data-filter="aprovado">Aprovados</button>
+            <button class="filtro-btn" data-filter="reprovado">Reprovados</button>
+          </div>
+          <!-- Chamado #72 -->
+          <button class="btn-beyond btn-secondary-amp" onclick="CurriculoModule.abrirFiltroAvancado()"><i class="bi bi-funnel"></i> Filtros <span class="badge bg-primary ms-1" id="curr-filtro-count" style="display:none;">0</span></button>
+          <button class="btn-beyond btn-primary-amp" onclick="abrirNovoCurriculo()"><i class="bi bi-plus-lg"></i> Cadastrar Currículo</button>
+        </div>
+      </div>
+      <div class="curriculo-grid" id="curriculos-grid"></div>
+    </div>
+
+    <!-- ======================== CONFIGURAÇÕES ======================== -->
+    <div class="amp-page" id="page-configuracoes">
+      <div class="top-bar">
+        <div><div class="page-title">Configurações</div><div class="page-sub">Usuários, Filiais, Tags e Logs do sistema</div></div>
+      </div>
+      <!-- Minha Performance (AJUSTE 3) -->
+      <div class="config-section" id="painel-minha-performance">
+        <div class="config-section-title"><i class="bi bi-bar-chart-line-fill me-1"></i> Minha Performance — <span id="perf-usuario-nome">—</span></div>
+        <!-- Foto de Perfil -->
+        <div class="d-flex align-items-center gap-3 mb-3 p-3" style="background:var(--d-bgc-f9fafb);border-radius:12px;">
+          <div id="avatar-preview" style="width:64px;height:64px;border-radius:50%;overflow:hidden;background:var(--d-bgc-e5e7eb);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--d-txt-6b7280);flex-shrink:0;"></div>
+          <div>
+            <div class="fw-semibold mb-1">Foto de Perfil</div>
+            <div class="small text-muted mb-2">Apenas PNG • Máximo 2MB</div>
+            <div class="d-flex gap-2">
+              <label class="btn-beyond btn-secondary-amp btn-sm-amp" style="cursor:pointer;margin:0;">
+                <i class="bi bi-camera"></i> Escolher foto
+                <input type="file" id="avatar-input" accept=".png,image/png" style="display:none;">
+              </label>
+              <button class="btn-beyond btn-secondary-amp btn-sm-amp" id="btn-remover-avatar" style="display:none;color:var(--d-txt-dc2626);border-color:var(--d-brd-dc2626);"><i class="bi bi-trash"></i> Remover</button>
+            </div>
+            <div id="avatar-status" class="small mt-1"></div>
+          </div>
+        </div>
+        <div id="minha-performance-content"></div>
+      </div>
+      <!-- Usuários -->
+      <div class="config-section" id="cfg-sec-usuarios">
+        <div class="config-section-title"><i class="bi bi-people-fill me-1"></i> Usuários Cadastrados</div>
+        <div class="table-wrap mb-3">
+          <table class="amp-table">
+            <thead><tr><th>Nome</th><th>Sigla</th><th>Filial</th><th>Perfil</th><th>Metas</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="usuarios-tbody"></tbody>
+          </table>
+        </div>
+        <button class="btn-beyond btn-primary-amp btn-sm-amp" onclick="abrirNovoUsuario()"><i class="bi bi-person-plus-fill"></i> Novo Usuário</button>
+      </div>
+      <!-- Filiais (dinâmico) -->
+      <div class="config-section" id="cfg-sec-filiais">
+        <div class="config-section-title"><i class="bi bi-building me-1"></i> Filiais</div>
+        <div class="row g-3" id="filiais-grid"></div>
+        <button class="btn-beyond btn-primary-amp btn-sm-amp mt-3" onclick="ConfigModule.abrirNovaFilial()"><i class="bi bi-plus-lg"></i> Nova Filial</button>
+      </div>
+      <!-- Tags (dinâmico) -->
+      <div class="config-section" id="cfg-sec-tags">
+        <div class="config-section-title"><i class="bi bi-tags-fill me-1"></i> Tags do Sistema</div>
+        <div class="d-flex flex-wrap gap-2" id="tags-grid"></div>
+        <button class="btn-beyond btn-primary-amp btn-sm-amp mt-3" onclick="ConfigModule.abrirNovaTag()"><i class="bi bi-plus-lg"></i> Nova Tag</button>
+      </div>
+      <!-- Metas de Conversão (Chamado #44) — só gerente (mostrado via JS) -->
+      <div class="config-section" id="config-metas-conversao" style="display:none;">
+        <div class="config-section-title"><i class="bi bi-percent me-1"></i> Metas do Relatório de Conversão de Funil</div>
+        <p class="small text-muted mb-3">Metas (em %) usadas no relatório de conversão entre etapas. Valem para todo o sistema. Ao salvar, o relatório passa a usar os novos valores.</p>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Lead → Ligação (%)</label>
+            <input type="number" step="0.1" min="0" max="1000" id="cmc-lead-ligacao" class="form-control form-control-sm">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Ligação → Agendamento (%)</label>
+            <input type="number" step="0.1" min="0" max="1000" id="cmc-ligacao-agendam" class="form-control form-control-sm">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Agendamento → Visita (%)</label>
+            <input type="number" step="0.1" min="0" max="1000" id="cmc-agendam-visita" class="form-control form-control-sm">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Visita → Venda (%)</label>
+            <input type="number" step="0.1" min="0" max="1000" id="cmc-visita-venda" class="form-control form-control-sm">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Venda → Carteira (%)</label>
+            <input type="number" step="0.1" min="0" max="1000" id="cmc-venda-carteira" class="form-control form-control-sm">
+          </div>
+        </div>
+        <button class="btn-beyond btn-primary-amp btn-sm-amp mt-3" onclick="TaxaConversaoModule.salvarMetasConversao()">
+          <i class="bi bi-check-lg"></i> Salvar metas de conversão
+        </button>
+      </div>
+      <!-- Histórico de Alterações (Sprint 7 · 7.5 — filtros + paginação) -->
+      <div class="config-section" id="cfg-sec-historico-alt">
+        <div class="config-section-title d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-clock-history me-1"></i> Histórico de Alterações <span id="cfg-hist-alt-nota" class="small text-muted fw-normal" style="display:none;">(seus últimos 3 meses)</span></span>
+          <div class="d-flex gap-2">
+            <button class="btn-beyond btn-secondary-amp btn-sm-amp" id="btn-filtro-auditoria"
+                    onclick="AuditModule.abrirFiltroAvancado()"
+                    title="Filtrar por período, usuário e tipo de operação">
+              <i class="bi bi-funnel-fill"></i> Filtros
+              <span class="badge bg-primary ms-1" id="btn-filtro-auditoria-count" style="display:none;">0</span>
+            </button>
+            <button class="btn-beyond btn-secondary-amp btn-sm-amp" id="btn-audit-limpar" onclick="AuditModule.limpar()" style="color:var(--d-txt-dc2626);border-color:var(--d-brd-dc2626);"><i class="bi bi-trash"></i> Limpar</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="amp-table">
+            <thead><tr><th>Usuário</th><th>Campo</th><th>Valor Anterior</th><th>Novo Valor</th><th>Data/Hora</th></tr></thead>
+            <tbody id="audit-tbody"></tbody>
+          </table>
+        </div>
+        <div id="audit-rodape"></div>
+      </div>
+
+      <!-- Suporte técnico (Onda 5 pós-testes — Ticket #31) -->
+      <div class="config-section">
+        <div class="config-section-title"><i class="bi bi-life-preserver me-1"></i> Suporte técnico</div>
+        <div class="small text-muted mb-3">
+          Se algo deu errado nesta sessão (falha ao salvar, erro de rede, mensagem estranha),
+          baixe o log de falhas e envie ao suporte. O arquivo contém timestamps, mensagens
+          de erro técnicas e informações do ambiente — nada de dados sensíveis (senhas,
+          conteúdo dos leads etc.).
+        </div>
+        <button class="btn-beyond btn-secondary-amp btn-sm-amp" onclick="window.baixarLogFalhas()">
+          <i class="bi bi-download"></i> Baixar Log de Falhas
+        </button>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         PÁGINA: WIKI (Central de Conhecimento)
+         Preenchida dinamicamente por WikiModule.render()
+         ================================================================ -->
+    <div class="amp-page" id="page-wiki">
+      <!-- Conteúdo renderizado por WikiModule.render() -->
+    </div>
+
+  </main>
+</div><!-- /app-layout -->
+
+<!-- ================================================================
+     MODAL: NOVO LEAD
+     ================================================================ -->
+<div class="amp-modal" id="modal-novo-lead">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🌱 Cadastro de Lead</div>
+        <div class="amp-modal-subtitle">Preencha os dados do novo contato</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-novo-lead')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <form id="form-novo-lead" onsubmit="return false;">
+        <div class="form-section">
+          <div class="form-section-title">Identificação</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">ID Lead <span style="font-size:10px;color:var(--text-muted);font-weight:400;">(gerado pelo sistema ao salvar)</span></label>
+              <input type="text" id="nl-id" class="form-control readonly-id" readonly placeholder="Será gerado automaticamente ao salvar">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data de Chegada</label>
+              <input type="date" id="nl-data" class="form-control">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Nome Completo <span class="required">*</span></label>
+              <input type="text" id="nl-nome" class="form-control" placeholder="Nome do lead">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefone <span class="required">*</span></label>
+              <input type="tel" id="nl-tel" class="form-control" placeholder="(48) 99999-9999">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Captador</label>
+              <input type="text" id="nl-captador" class="form-control" value="" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Origem</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Fonte do Lead <span class="required">*</span></label>
+              <select id="nl-fonte" class="form-select fonte-select">
+                <option value="">Selecione a fonte...</option>
+                <option>Carteira Própria</option><option>Inativo</option>
+                <option>Associado Novo Veículo</option><option>Cliente Potencial</option>
+                <option>Consultor que Saiu</option><option>Recomendação Associado</option>
+                <option>Recomendação Não Associado</option><option>Troca de Titularidade</option>
+                <option>Projeto 150 X</option><option>Projeto 150 Y</option>
+                <option>Internos</option><option>Site</option><option>Terceiros</option>
+                <option>Redes Sociais</option><option>Externos</option><option>Reciclagem</option>
+                <option>Minha Carteira</option>
+              </select>
+              <div class="fonte-desc"></div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Quem Indicou</label>
+              <input type="text" id="nl-quem" class="form-control" placeholder="Nome de quem indicou">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Veículo (opcional)</div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Placa</label>
+              <input type="text" id="nl-placa" class="form-control" placeholder="ABC-1234" style="text-transform:uppercase;">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valor FIPE</label>
+              <input type="text" id="nl-fipe" class="form-control" placeholder="R$ 0,00">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valor Médio Mensalidade</label>
+              <input type="text" id="nl-mensest" class="form-control" placeholder="R$ 0,00">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Observações</div>
+          <textarea id="nl-obs" class="form-control" placeholder="Observações sobre o lead..." rows="3"></textarea>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">🏷️ Tags (opcional)</div>
+          <div id="nl-tags-select" class="d-flex flex-wrap gap-2"></div>
+          <input type="hidden" id="nl-tags" value="">
+        </div>
+      </form>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-novo-lead')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" onclick="salvarNovoLead()"><i class="bi bi-check-lg"></i> Cadastrar Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: DETALHE DO LEAD (ABAS PROGRESSIVAS — RN-11)
+     ================================================================ -->
+<div class="amp-modal" id="modal-lead">
+  <div class="amp-modal-content modal-xl" style="max-height:94vh;">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title" id="mld-nome">Nome do Lead</div>
+        <div class="amp-modal-subtitle" style="font-family:'JetBrains Mono';font-size:11px;" id="mld-id">BCR-2026-00000</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="modal-stage-badge" id="mld-stage">Etapa</span>
+        <button class="modal-close-btn" onclick="closeModal('modal-lead')"><i class="bi bi-x-lg"></i></button>
+      </div>
+    </div>
+
+    <!-- Abas -->
+    <div class="lead-tabs" id="lead-tabs">
+      <button class="lead-tab" data-tab="lead">🌱 Lead</button>
+      <button class="lead-tab disabled" data-tab="ligacao">📞 Ligação</button>
+      <button class="lead-tab disabled" data-tab="agendamento">📅 Agendamento</button>
+      <button class="lead-tab disabled" data-tab="visita">🏠 Visita</button>
+      <button class="lead-tab disabled" data-tab="venda">💰 Venda</button>
+      <button class="lead-tab disabled" data-tab="carteira">👛 Carteira</button>
+    </div>
+
+    <div class="amp-modal-body" style="padding-top:16px;">
+
+      <!-- Tags do Lead (visível em TODAS as abas) -->
+      <div style="background:var(--d-bgc-f8fafc);border:1px solid var(--d-brd-e2e8f0);border-radius:8px;padding:10px 14px;margin-bottom:12px;">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="small fw-semibold" style="color:var(--d-txt-64748b);">🏷️ Tags:</span>
+          <span id="mld-tags-atuais" class="d-flex flex-wrap gap-1"></span>
+          <span class="small text-muted mx-1">|</span>
+          <span id="mld-tags-disponiveis" class="d-flex flex-wrap gap-1"></span>
+        </div>
+      </div>
+
+      <!-- Observações do Lead (visível em TODAS as abas) — PATCH OBS-3.5
+           MOVIDO pra o final do modal-body (Ticket #17 / Onda 2 pós-testes). -->
+
+      <!-- ABA LEAD -->
+      <div class="lead-tab-pane active" id="tab-lead">
+        <div class="lead-destaque verde">
+          <div class="flex-grow-1">
+            <div class="ld-nome text-success" id="mld-lead-nome">—</div>
+            <div class="ld-info" id="mld-lead-id-show">—</div>
+          </div>
+          <div>
+            <div class="ld-tel" style="color:var(--d-txt-059669);">
+              <i class="bi bi-telephone-fill"></i>
+              <span id="mld-lead-tel">—</span>
+              <button class="btn-copy-tel" id="mld-copy-tel"><i class="bi bi-clipboard"></i> Copiar</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Dados do Lead</div>
+          <div class="row g-3">
+            <!-- Chamado #67 — Nome e Telefone editáveis. Muitas vezes o
+                 lead é criado só com primeiro nome + 1 telefone; ao
+                 fechar a venda o especialista completa/corrige esses
+                 dados. Editável em qualquer etapa, com autosave. -->
+            <div class="col-md-6">
+              <label class="form-label">Nome do Lead</label>
+              <input type="text" id="mld-nome-edit" class="form-control" placeholder="Nome completo do lead">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefone(s)</label>
+              <input type="text" id="mld-tel-edit" class="form-control" placeholder="Telefone(s) do lead">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fonte do Lead <span class="required">*</span></label>
+              <select id="mld-fonte" class="form-select">
+                <option value="">—</option>
+                <option>Carteira Própria</option><option>Inativo</option><option>Associado Novo Veículo</option>
+                <option>Cliente Potencial</option><option>Recomendação Associado</option><option>Recomendação Não Associado</option>
+                <option>Troca de Titularidade</option><option>Projeto 150 X</option><option>Projeto 150 Y</option>
+                <option>Internos</option><option>Site</option><option>Terceiros</option>
+                <option>Redes Sociais</option><option>Externos</option><option>Reciclagem</option><option>Minha Carteira</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Captador</label>
+              <input type="text" id="mld-captador" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Placa</label>
+              <input type="text" id="mld-placa" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valor FIPE</label>
+              <input type="text" id="mld-fipe" class="form-control">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Mensalidade Estimada</label>
+              <input type="text" id="mld-mensest" class="form-control">
+            </div>
+            <!-- Chamado #84 — Data de Chegada e Quem Indicou: dados da
+                 etapa de entrada do lead. Exibidos como SOMENTE LEITURA
+                 (readonly) porque pertencem a uma etapa anterior e não
+                 devem ser editados aqui. Antes só existiam no form de
+                 cadastro e "sumiam" ao reabrir o lead. -->
+            <div class="col-md-6">
+              <label class="form-label">Data de Chegada</label>
+              <input type="text" id="mld-data-chegada" class="form-control" readonly
+                     style="background-color:var(--d-bg-f3f4f6,#f3f4f6);cursor:default;">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Quem Indicou</label>
+              <input type="text" id="mld-quem-indicou" class="form-control" readonly
+                     style="background-color:var(--d-bg-f3f4f6,#f3f4f6);cursor:default;">
+            </div>
+          </div>
+          <!-- Chamado #67 — botão Salvar explícito para as edições da aba
+               Lead (nome, telefone e demais campos). Aparece só quando há
+               alteração pendente e dá feedback claro ao salvar; enquanto
+               isso o autosave no blur segue como rede de segurança. -->
+          <div class="d-flex align-items-center gap-2 mt-3" id="mld-lead-save-wrap" style="display:none !important;">
+            <button class="btn-beyond btn-primary-amp" id="mld-lead-save-btn"
+                    onclick="FunilModule.salvarDadosLead()">
+              <i class="bi bi-check-lg"></i> Salvar alterações
+            </button>
+            <span id="mld-lead-save-status" class="small text-muted"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA LIGAÇÃO -->
+      <div class="lead-tab-pane" id="tab-ligacao">
+        <div class="lead-destaque verde d-flex align-items-center gap-3">
+          <div class="flex-grow-1">
+            <div class="ld-nome text-success" id="mld-lig-nome">—</div>
+            <div class="ld-info" id="mld-lig-id">—</div>
+          </div>
+          <div>
+            <div class="ld-tel" style="color:var(--d-txt-059669);">
+              <i class="bi bi-telephone-fill"></i>
+              <span id="mld-lig-tel">—</span>
+              <button class="btn-copy-tel" id="mld-copy-lig-tel"><i class="bi bi-clipboard"></i> Copiar</button>
+            </div>
+          </div>
+          <span class="tent-badge-lg" id="mld-tent-badge">0 tentativas</span>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Registro da Ligação</div>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Data e Horário</label>
+              <div class="input-group">
+                <input type="datetime-local" id="lig-datetime" class="form-control">
+                <button class="btn btn-outline-secondary btn-agora" data-target="lig-datetime">Agora</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="res-group-label">Sem Contato</div>
+            <div class="resultado-options">
+              <div class="res-opt danger">Não Atendeu</div>
+              <div class="res-opt danger">Número Errado</div>
+              <div class="res-opt warning">Pediu para Retornar</div>
+            </div>
+            <div class="res-group-label mt-2">Contato (conseguiu falar e expor o script)</div>
+            <div class="resultado-options">
+              <div class="res-opt">Não Agendou</div>
+              <div class="res-opt">✅ Agendamento</div>
+              <div class="res-opt disabled-opt" data-tipo="remarketing">♻️ Remarketing</div>
+            </div>
+            <div id="remarketing-warn" style="display:none;">
+              ⚠️ <span></span>
+            </div>
+          </div>
+        </div>
+        <!-- PATCH OBS-3.5 — campo de obs específica da ligação removido;
+             toda obs vai pelo campo geral sticky no topo. -->
+      </div>
+
+      <!-- ABA AGENDAMENTO -->
+      <div class="lead-tab-pane" id="tab-agendamento">
+        <div class="lead-destaque roxo">
+          <div class="flex-grow-1">
+            <div class="ld-nome" style="color:var(--d-txt-7c3aed);" id="mld-agen-nome">—</div>
+            <div class="ld-info" id="mld-agen-tel">—</div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Dados do Agendamento</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Categoria do Veículo <span class="required">*</span></label>
+              <select id="agen-cat" class="form-select">
+                <option>Nacional Particular</option><option>Importado/Diesel</option>
+                <option>Nacional Trabalho</option><option>Motocicleta</option>
+                <option>Caminhão</option><option>Não sei</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Local <span class="required">*</span></label>
+              <select id="agen-local" class="form-select">
+                <option>🏢 Interno</option><option>📍 Externo</option><option>💻 Online</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data em que o agendamento foi feito</label>
+              <input type="date" id="agen-data-feito" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data e Hora da Visita <span class="required">*</span></label>
+              <input type="datetime-local" id="agen-data-visita" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">✅ Checklist de Confirmação</div>
+          <div class="checklist" id="checklist-agendamento">
+            <div class="text-muted small p-2">Os itens do checklist aparecerão após o agendamento ser criado.</div>
+          </div>
+        </div>
+        <!-- Chamado #86 — Excluir agendamento da agenda. Só aparece
+             quando há agendamento vigente (controlado no abrirDetalhe).
+             Remove o evento da agenda (memória + banco). -->
+        <div id="mld-agen-excluir-wrap" style="display:none;">
+          <button class="btn-beyond btn-secondary-amp"
+                  style="color:var(--d-txt-dc2626,#dc2626);border-color:var(--d-brd-dc2626,#dc2626);"
+                  onclick="FunilModule.excluirAgendamentoAtual()">
+            <i class="bi bi-trash"></i> Excluir Agendamento
+          </button>
+          <div class="small text-muted mt-1">Remove este agendamento da agenda.</div>
+        </div>
+        <!-- PATCH OBS-3.5 — campo de obs específica do agendamento removido;
+             toda obs vai pelo campo geral sticky no topo. -->
+      </div>
+
+      <!-- ABA VISITA -->
+      <div class="lead-tab-pane" id="tab-visita">
+        <div class="lead-destaque laranja">
+          <div class="flex-grow-1">
+            <div class="ld-nome" style="color:var(--d-txt-d97706);" id="mld-vis-nome">—</div>
+            <div class="ld-info" id="mld-vis-tel">—</div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Resultado da Visita <span class="required">*</span></div>
+          <div class="visita-opts">
+            <div class="vres-btn vres-delay" data-tipo="delay">⏳ Delay</div>
+            <div class="vres-btn vres-c2"    data-tipo="c2">📅 C2</div>
+            <div class="vres-btn vres-nao"   data-tipo="nao">❌ Não Fechou</div>
+            <div class="vres-btn vres-venda" data-tipo="venda">💰 Venda!</div>
+          </div>
+          <!-- Delay -->
+          <div class="resultado-detail" id="vis-detail-delay">
+            <div class="form-section-title mb-2">⏳ Acompanhamento — Delay</div>
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Data e Hora da Tentativa</label>
+                <div class="input-group">
+                  <input type="datetime-local" id="vis-delay-dt" class="form-control">
+                  <button class="btn btn-outline-secondary btn-agora" data-target="vis-delay-dt">Agora</button>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Resultado</label>
+                <select class="form-select"><option>Não Atendeu</option><option>Não Reagendou</option><option>Pediu para Retornar</option></select>
+              </div>
+            </div>
+          </div>
+          <!-- C2 -->
+          <div class="resultado-detail" id="vis-detail-c2">
+            <div class="form-section-title mb-2">📅 Segundo Agendamento (C2)</div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Tipo de C2 <span class="required">*</span></label>
+                <select id="c2-tipo" class="form-select">
+                  <option value="">Selecione...</option>
+                  <option value="c2_agendamento">📅 C2 Agendamento — lead remarcou a visita</option>
+                  <option value="c2_venda">💰 C2 Venda — lead veio à visita, não fechou, mas remarcou retorno</option>
+                </select>
+              </div>
+              <div class="col-md-4"><label class="form-label">Data</label><input type="date" id="c2-data" class="form-control"></div>
+              <div class="col-md-4"><label class="form-label">Hora</label><input type="time" id="c2-hora" class="form-control"></div>
+              <div class="col-md-4"><label class="form-label">Local</label><select id="c2-local" class="form-select"><option>Interno</option><option>Externo</option><option>Online</option></select></div>
+            </div>
+          </div>
+          <!-- Não fechou -->
+          <div class="resultado-detail" id="vis-detail-nao">
+            <div class="form-section-title mb-2">❌ Não Fechou — Objeção do Lead</div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Qual foi a objeção? <span class="required">*</span></label>
+                <select id="nao-objecao" class="form-select">
+                  <option value="">Selecione...</option>
+                  <option value="sem_dinheiro">💸 Sem dinheiro</option>
+                  <option value="falar_conjuge">💑 Falar com cônjuge</option>
+                  <option value="tem_seguro">🛡️ Tem seguro</option>
+                  <option value="vou_pensar">🤔 Vou pensar</option>
+                  <option value="nao_tem_interesse">🚫 Não tem interesse</option>
+                  <option value="beneficios">📋 Benefícios</option>
+                  <option value="adesao_zero">0️⃣ Adesão zero</option>
+                  <option value="comparacao_preco">⚖️ Comparação de preço</option>
+                  <option value="outros">📝 Outros</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- Venda -->
+          <div class="resultado-detail" id="vis-detail-venda">
+            <div class="text-center py-3">
+              <div style="font-size:42px;">🎉</div>
+              <div class="fw-bold text-success fs-5 mt-2">Parabéns! Venda realizada!</div>
+              <div class="text-muted small mt-1">Clique em confirmar para avançar para a etapa Venda</div>
+            </div>
+          </div>
+        </div>
+        <!-- PATCH OBS-3.5 — campo de obs específica da visita removido;
+             toda obs vai pelo campo geral sticky no topo. -->
+      </div>
+
+      <!-- ABA VENDA -->
+      <div class="lead-tab-pane" id="tab-venda">
+        <div class="lead-destaque verde">
+          <div class="flex-grow-1">
+            <div class="ld-nome text-success" id="mld-venda-nome">—</div>
+            <div class="ld-info"><span id="mld-venda-tel">—</span> · Placa: <strong id="mld-venda-placa">—</strong></div>
+          </div>
+          <div class="small text-muted">Fonte: <strong id="mld-venda-fonte">—</strong></div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Dados da Venda</div>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Valor de Adesão <span class="required">*</span></label><input type="text" id="venda-adesao" class="form-control" placeholder="R$ 0,00"></div>
+            <div class="col-md-4"><label class="form-label">Valor Mensalidade <span class="required">*</span></label><input type="text" id="venda-mensalidade" class="form-control" placeholder="R$ 0,00"></div>
+            <div class="col-md-4">
+              <label class="form-label">Valor Rastreador <span class="required" id="venda-rastreador-req">*</span></label>
+              <input type="text" id="venda-rastreador" class="form-control" placeholder="R$ 0,00">
+              <!-- Chamado #60 — quando o associado não tem rastreador, marca
+                   aqui: o campo de valor é dispensado (rastreador obrigatório
+                   só em casos específicos). Quando tem, deixe desmarcado e
+                   informe o valor normalmente. -->
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="venda-sem-rastreador"
+                       onchange="FunilModule.toggleSemRastreador(this.checked)">
+                <label class="form-check-label small text-muted" for="venda-sem-rastreador">
+                  Não tem rastreador
+                </label>
+              </div>
+            </div>
+            <div class="col-md-6"><label class="form-label">Data da Venda <span class="required">*</span></label><input type="date" id="venda-data" class="form-control"></div>
+            <div class="col-md-6"><label class="form-label">Aniversário do Associado <span class="required">*</span></label><input type="date" id="venda-aniversario" class="form-control"></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Recomendação</div>
+          <div id="rec-card-1" class="rec-card rec-form">
+            <div class="rec-num">Nova recomendação</div>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="form-label">Nome <span class="required">*</span></label><input type="text" class="form-control rec-nome" placeholder="Nome"></div>
+              <div class="col-md-6"><label class="form-label">Telefone <span class="required">*</span></label><input type="tel" class="form-control rec-tel" placeholder="(48) 99999-9999"></div>
+              <div class="col-md-6"><label class="form-label">Grau de Proximidade <span class="required">*</span></label><input type="text" class="form-control rec-grau" placeholder="Ex: Amigo, Familiar..."></div>
+              <div class="col-md-6"><label class="form-label">Profissão</label><input type="text" class="form-control rec-profissao" placeholder="Opcional"></div>
+              <div class="col-md-6"><label class="form-label">Veículo</label><input type="text" class="form-control rec-veiculo" placeholder="Opcional"></div>
+              <div class="col-md-6"><label class="form-label">Observações</label><input type="text" class="form-control rec-obs" placeholder="Opcional"></div>
+            </div>
+            <div class="small text-muted mt-1">
+              <i class="bi bi-info-circle"></i>
+              Ao clicar em "Criar como Lead", o formulário é limpo automaticamente para você adicionar a próxima recomendação.
+            </div>
+            <button class="btn-beyond btn-verde-outline btn-sm-amp mt-2" onclick="criarLeadRec('rec-card-1')">🌱 Criar como Lead</button>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">✅ Checklist Pós-Venda</div>
+          <div class="checklist" id="checklist-venda">
+            <div class="text-muted small p-2">Os itens do checklist aparecerão após a venda ser registrada.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA CARTEIRA -->
+      <div class="lead-tab-pane" id="tab-carteira">
+        <div class="lead-destaque cinza">
+          <div class="flex-grow-1">
+            <div class="ld-nome" id="mld-cart-nome">—</div>
+            <div class="ld-info" id="mld-cart-tel">—</div>
+          </div>
+          <div class="text-end small text-muted">
+            <div>Última ligação:</div>
+            <div class="fw-bold" id="mld-cart-ultima">—</div>
+          </div>
+        </div>
+        <!-- Onda 2 pós-testes (Tickets #18, #23) — Ver Histórico
+             Abre modal com todo o histórico de carteira_interacoes
+             do lead, com filtro por tipo (Todas/Recomendação/Cuidar da Base). -->
+        <div class="d-flex justify-content-end mb-2">
+          <button class="btn-beyond btn-secondary-amp btn-sm-amp"
+                  onclick="FunilModule.abrirHistoricoCarteira()"
+                  title="Ver histórico de interações da Carteira deste lead">
+            <i class="bi bi-clock-history"></i> Ver Histórico
+          </button>
+        </div>
+        <!-- Pedido de Recomendações (seção principal) -->
+        <div class="form-section">
+          <div class="form-section-title">📞 Pedido de Recomendações</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Motivo da Ligação</label>
+              <select class="form-select">
+                <option>Pedido de Recomendação</option><option>Upsell</option>
+                <option>Atualização de Dados</option><option>Promoções</option><option>Outros</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data e Hora</label>
+              <div class="input-group">
+                <input type="datetime-local" id="cart-datetime" class="form-control">
+                <button class="btn btn-outline-secondary btn-agora" data-target="cart-datetime">Agora</button>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Resultado</label>
+              <div class="resultado-options">
+                <div class="res-opt danger">Não Atendeu</div>
+                <div class="res-opt warning">Pediu para Retornar</div>
+                <div class="res-opt">✅ Passou Recomendações</div>
+                <div class="res-opt">Não Passou Recomendações</div>
+              </div>
+            </div>
+          </div>
+          <div id="rec-cart" class="rec-card rec-form mt-3">
+            <div class="rec-num">Nova Recomendação</div>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="form-label">Nome</label><input type="text" class="form-control rec-nome" placeholder="Nome"></div>
+              <div class="col-md-6"><label class="form-label">Telefone</label><input type="tel" class="form-control rec-tel" placeholder="(48)"></div>
+              <div class="col-md-6"><label class="form-label">Grau de Proximidade</label><input type="text" class="form-control rec-grau" placeholder="Ex: Colega de trabalho"></div>
+              <div class="col-md-6"><label class="form-label">Profissão</label><input type="text" class="form-control rec-profissao" placeholder="Opcional"></div>
+              <div class="col-md-6"><label class="form-label">Veículo (opcional)</label><input type="text" class="form-control rec-veiculo" placeholder="Modelo"></div>
+              <div class="col-md-6"><label class="form-label">Observações</label><input type="text" class="form-control rec-obs" placeholder="Opcional"></div>
+            </div>
+            <button class="btn-beyond btn-verde-outline btn-sm-amp mt-2" onclick="criarLeadRec('rec-cart')">🌱 Criar como Lead</button>
+          </div>
+        </div>
+        <!-- Cuidar da Base (seção secundária, abaixo) -->
+        <div class="form-section">
+          <div class="form-section-title">🌱 Cuidar da Base</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Motivo</label>
+              <select class="form-select" id="cb-motivo">
+                <option>Aniversários</option><option>Férias</option><option>Festas</option>
+                <option>Feriado</option><option>Fenômenos da Natureza</option>
+                <option>Índice de Acidentes</option><option>Campanhas Promocionais</option>
+                <option>Relembrar Benefícios</option><option>Outros</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data e Hora</label>
+              <div class="input-group">
+                <input type="datetime-local" id="cb-datetime" class="form-control">
+                <button class="btn btn-outline-secondary btn-agora" data-target="cb-datetime">Agora</button>
+              </div>
+            </div>
+            <!-- 3B.4: resultados restritos — Cuidar da Base NÃO tem "Passou/Não Passou Recomendações" -->
+            <div class="col-12">
+              <label class="form-label">Resultado</label>
+              <div class="resultado-options" id="cb-resultado-opts">
+                <div class="res-opt danger">Não Atendeu</div>
+                <div class="res-opt warning">Pediu para Retornar</div>
+                <div class="res-opt">✅ Atendeu</div>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Observações: Cuidar da Base</label>
+              <input type="text" class="form-control" id="cb-obs" placeholder="Opcional">
+            </div>
+          </div>
+          <div class="text-end mt-3">
+            <button class="btn-beyond btn-primary-amp" onclick="FunilModule.registrarCuidarBase()">
+              <i class="bi bi-check-lg"></i> Registrar Cuidar da Base
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observações do Lead (Ticket #17 / Onda 2 pós-testes)
+           Movido pra o final do modal-body — independente da aba ativa,
+           é o último bloco visível. Autosave OBS-3.5 continua ligado
+           via id do textarea (não depende da posição no DOM). -->
+      <div class="form-section" style="margin-top:16px; margin-bottom:8px; border-top:1px solid var(--d-brd-f1f5f9); padding-top:12px;">
+        <div class="form-section-title">Observações (acumuladas em todas as etapas)</div>
+        <textarea id="mld-obs" class="form-control" placeholder="Observações sobre o lead, visíveis em qualquer etapa..." rows="3"></textarea>
+      </div>
+
+    </div><!-- /amp-modal-body -->
+
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-lead')">Fechar</button>
+      <button class="btn-beyond btn-secondary-amp" id="mld-btn-excluir" style="display:none; color:var(--d-txt-dc2626); border-color:var(--d-brd-dc2626);" onclick="FunilModule.excluirLeadAtual()"><i class="bi bi-trash"></i> Excluir Lead</button>
+      <!-- v1.3.0 — Botões de Arquivamento (RN-21) -->
+      <button class="btn-beyond btn-secondary-amp" id="mld-btn-arquivar" onclick="FunilModule.arquivarLeadAtual()" title="Ocultar da visualização padrão (não exclui)"><i class="bi bi-archive"></i> Arquivar</button>
+      <button class="btn-beyond btn-secondary-amp" id="mld-btn-desarquivar" style="display:none;" onclick="FunilModule.desarquivarLeadAtual()" title="Voltar à visualização padrão"><i class="bi bi-archive-fill"></i> Desarquivar</button>
+      <button class="btn-beyond btn-secondary-amp" id="mld-btn-lig" style="display:none;" onclick="registrarLigacao()"><i class="bi bi-telephone-fill"></i> Registrar Ligação</button>
+      <button class="btn-beyond btn-primary-amp" id="mld-btn-avancar" onclick="avancarLeadAtual()"><i class="bi bi-arrow-right"></i> Avançar Etapa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: DETALHE DA VISÃO DO FUNIL — SEM x COM ARQUIVADOS (Chamado #109)
+     Botão "Ver detalhado" do card "Visão do Funil — Conversão entre
+     etapas" (Dashboard).
+     ================================================================ -->
+<div class="amp-modal" id="modal-visao-funil-detalhado">
+  <div class="amp-modal-content modal-lg">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🔻 Conversão entre etapas — detalhado</div>
+        <div class="amp-modal-subtitle">Comparação das % sem e com leads arquivados</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-visao-funil-detalhado')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body" id="visao-funil-detalhado-body">
+      <!-- Preenchido por TaxaConversaoModule.abrirDetalheVisaoFunil() -->
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-visao-funil-detalhado')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: DETALHE DO FUNIL — SEM x COM ARQUIVADOS (Chamado #108)
+     Botão "Ver detalhado" do card "Leads no Funil" (Dashboard).
+     ================================================================ -->
+<div class="amp-modal" id="modal-funil-detalhado">
+  <div class="amp-modal-content modal-lg">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🔻 Leads no Funil — detalhado</div>
+        <div class="amp-modal-subtitle">Comparação das % sem e com leads arquivados</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-funil-detalhado')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body" id="funil-detalhado-body">
+      <!-- Preenchido por FunilModule.abrirDetalheFunilPreview() -->
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-funil-detalhado')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: PERÍODO DO RELATÓRIO "DESEMPENHO POR ESPECIALISTA" (Chamado #115 reaberto)
+     ================================================================ -->
+<div class="amp-modal" id="modal-desemp-periodo">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🏆 Desempenho por Especialista</div>
+        <div class="amp-modal-subtitle">Escolha o período do relatório</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-desemp-periodo')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <div class="mb-2">
+        <label class="form-label">Período</label>
+        <select id="desemp-periodo" class="form-select" onchange="RelatoriosModule.onDesempPeriodoChange()">
+          <option value="tudo">Tudo — desde o início da operação</option>
+          <option value="ciclo-atual">Ciclo de comissão atual (26 → 25)</option>
+          <option value="ciclo-anterior">Ciclo de comissão anterior</option>
+          <option value="mes-atual">Mês atual (calendário)</option>
+          <option value="mes-anterior">Mês anterior (calendário)</option>
+          <option value="custom">Personalizado…</option>
+        </select>
+      </div>
+      <div id="desemp-custom-wrap" class="row g-2" style="display:none;">
+        <div class="col-6"><label class="form-label">De</label><input type="date" id="desemp-de" class="form-control"></div>
+        <div class="col-6"><label class="form-label">Até</label><input type="date" id="desemp-ate" class="form-control"></div>
+      </div>
+      <p class="small text-muted mt-2 mb-0">Ligações, agendamentos, visitas e vendas seguem o período escolhido (para "Tudo", trazem o histórico completo). As colunas <strong>Adesão</strong> e <strong>Comissão Prevista</strong> seguem o ciclo de comissão correspondente — para "Tudo", usam o ciclo vigente (comissão reinicia a cada ciclo). Use <strong>"Ciclo de comissão anterior"</strong> no dia 26 para conferir o fechamento do ciclo que acabou.</p>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-desemp-periodo')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" onclick="RelatoriosModule.exportarDesempenhoConfirmar()"><i class="bi bi-download"></i> Gerar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: CONCLUIR LIGAÇÃO (Remarketing ou Agendamento — RN-03)
+     ================================================================ -->
+<div class="amp-modal" id="modal-concluir-lig">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div class="amp-modal-title">📞 Concluir — O que fazer?</div>
+      <button class="modal-close-btn" onclick="closeModal('modal-concluir-lig')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body text-center py-2">
+      <div class="text-muted small mb-1">Lead: <strong id="mcl-nome">—</strong></div>
+      <div class="text-muted small mb-4">Tentativas: <strong id="mcl-tent">—</strong></div>
+      <div class="d-flex flex-column gap-3">
+        <button class="mcl-btn mcl-btn-primary" id="mcl-btn-agendamento">📅 Prosseguir para Agendamento</button>
+        <button class="mcl-btn mcl-btn-secondary" id="mcl-btn-remarketing">♻️ Enviar para Remarketing</button>
+        <div id="mcl-remarketing-warn" class="small text-warning" style="display:none;">⚠️ Remarketing disponível apenas após 30 tentativas.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: ALTERAR SENHA (Chamado #62 — Parte A)
+     Auto-serviço: o usuário logado troca a própria senha, revalidando
+     a senha atual antes. Regras: ≥8 caracteres, 1 maiúscula, 1 número.
+     ================================================================ -->
+<div class="amp-modal" id="modal-trocar-senha">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🔑 Alterar Senha</div>
+        <div class="amp-modal-subtitle">Troque a senha da sua conta</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-trocar-senha')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <div id="ts-error" style="display:none; background:var(--d-bgc-fdf1f4); color:var(--d-txt-a80f2a); padding:9px 12px; border-radius:8px; font-size:13px; margin-bottom:14px; border:1px solid var(--d-brd-f7b8c4);"></div>
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Senha atual <span class="required">*</span></label>
+          <div class="input-group">
+            <input type="password" id="ts-atual" class="form-control" placeholder="Sua senha atual" autocomplete="current-password">
+            <button type="button" class="btn btn-outline-secondary ts-toggle" data-alvo="ts-atual" title="Mostrar/Ocultar senha" tabindex="-1">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-12"><label class="form-label">Nova senha <span class="required">*</span></label>
+          <div class="input-group">
+            <input type="password" id="ts-nova" class="form-control" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+            <button type="button" class="btn btn-outline-secondary ts-toggle" data-alvo="ts-nova" title="Mostrar/Ocultar senha" tabindex="-1">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+          </div>
+          <div class="form-text" style="font-size:11px;">Pelo menos 8 caracteres, 1 letra maiúscula e 1 número.</div>
+        </div>
+        <div class="col-12"><label class="form-label">Confirmar nova senha <span class="required">*</span></label>
+          <div class="input-group">
+            <input type="password" id="ts-confirma" class="form-control" placeholder="Repita a nova senha" autocomplete="new-password" onkeydown="if(event.key==='Enter')confirmarTrocarSenha()">
+            <button type="button" class="btn btn-outline-secondary ts-toggle" data-alvo="ts-confirma" title="Mostrar/Ocultar senha" tabindex="-1">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-trocar-senha')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" id="btn-trocar-senha" onclick="confirmarTrocarSenha()">
+        <i class="bi bi-check-lg"></i> Salvar nova senha
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: DEFINIR NOVA SENHA (recuperação) — Chamado #62 Parte B
+     Exibido quando o usuário volta pelo link de "Esqueceu sua senha?".
+     Sem campo de senha atual (a sessão de recovery já autentica).
+     ================================================================ -->
+<div class="amp-modal" id="modal-recovery-senha">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🔒 Definir nova senha</div>
+        <div class="amp-modal-subtitle">Crie uma nova senha para acessar o sistema</div>
+      </div>
+    </div>
+    <div class="amp-modal-body">
+      <div id="rec-error" style="display:none; background:var(--d-bgc-fdf1f4); color:var(--d-txt-a80f2a); padding:9px 12px; border-radius:8px; font-size:13px; margin-bottom:14px; border:1px solid var(--d-brd-f7b8c4);"></div>
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Nova senha <span class="required">*</span></label>
+          <div class="input-group">
+            <input type="password" id="rec-nova" class="form-control" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+            <button type="button" class="btn btn-outline-secondary rec-toggle" data-alvo="rec-nova" title="Mostrar/Ocultar senha" tabindex="-1">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+          </div>
+          <div class="form-text" style="font-size:11px;">Pelo menos 8 caracteres, 1 letra maiúscula e 1 número.</div>
+        </div>
+        <div class="col-12"><label class="form-label">Confirmar nova senha <span class="required">*</span></label>
+          <div class="input-group">
+            <input type="password" id="rec-confirma" class="form-control" placeholder="Repita a nova senha" autocomplete="new-password" onkeydown="if(event.key==='Enter')confirmarRecoverySenha()">
+            <button type="button" class="btn btn-outline-secondary rec-toggle" data-alvo="rec-confirma" title="Mostrar/Ocultar senha" tabindex="-1">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-primary-amp" id="btn-recovery-senha" onclick="confirmarRecoverySenha()">
+        <i class="bi bi-check-lg"></i> Salvar e entrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: HISTÓRICO CARTEIRA (Onda 2 pós-testes — Tickets #18, #23)
+     Lista todas as interações da tabela `carteira_interacoes` do lead
+     atual, com filtro por tipo (Todas | Recomendação | Cuidar da Base).
+     ================================================================ -->
+<div class="amp-modal" id="modal-hist-carteira">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">👛 Histórico da Carteira</div>
+        <div class="amp-modal-subtitle" id="mhc-lead-info">—</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-hist-carteira')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <span class="small text-muted">Filtrar:</span>
+        <button class="btn-beyond btn-secondary-amp btn-sm-amp mhc-filtro selected"
+                data-tipo="todas" onclick="FunilModule.filtrarHistoricoCarteira('todas')">Todas</button>
+        <button class="btn-beyond btn-secondary-amp btn-sm-amp mhc-filtro"
+                data-tipo="recomendacao" onclick="FunilModule.filtrarHistoricoCarteira('recomendacao')">📞 Recomendação</button>
+        <button class="btn-beyond btn-secondary-amp btn-sm-amp mhc-filtro"
+                data-tipo="cuidar_base" onclick="FunilModule.filtrarHistoricoCarteira('cuidar_base')">🌱 Cuidar da Base</button>
+        <span class="ms-auto small text-muted" id="mhc-contador">—</span>
+      </div>
+      <div id="mhc-lista" style="max-height:60vh; overflow-y:auto;">
+        <div class="text-muted small p-2 text-center">Carregando histórico...</div>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-hist-carteira')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: CURRÍCULO
+     ================================================================ -->
+<div class="amp-modal" id="modal-curriculo">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div class="amp-modal-title">📄 Cadastro de Currículo</div>
+      <button class="modal-close-btn" onclick="closeModal('modal-curriculo')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <form id="form-curriculo" onsubmit="return false;">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label">Nome Completo <span class="required">*</span></label><input type="text" id="curr-nome" class="form-control" placeholder="Nome do candidato"></div>
+          <div class="col-md-6"><label class="form-label">E-mail</label><input type="email" id="curr-email" class="form-control" placeholder="email@exemplo.com"></div>
+          <div class="col-md-6"><label class="form-label">Telefone</label><input type="tel" id="curr-tel" class="form-control" placeholder="(48) 99999-9999"></div>
+          <div class="col-md-6"><label class="form-label">Cargo Pretendido</label><input type="text" id="curr-cargo" class="form-control" placeholder="Ex: Consultor Comercial"></div>
+          <div class="col-md-6"><label class="form-label">Experiência (anos)</label><input type="number" id="curr-exp" class="form-control" placeholder="0" min="0"></div>
+          <!-- Chamado #73 -->
+          <div class="col-md-6"><label class="form-label">Perfil</label>
+            <select id="curr-perfil" class="form-select">
+              <option value="">—</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Administrativo">Administrativo</option>
+              <option value="Financeiro">Financeiro</option>
+              <option value="Recepção">Recepção</option>
+              <option value="Captação">Captação</option>
+              <option value="Serviços Gerais">Serviços Gerais</option>
+              <option value="Eventos">Eventos</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <!-- Chamado #71 -->
+          <div class="col-md-6"><label class="form-label">Data de Cadastro</label><input type="date" id="curr-data-cad" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">Data de Nascimento</label><input type="date" id="curr-nasc" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">Sexo</label><select id="curr-sexo" class="form-select"><option value="">—</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div>
+          <div class="col-md-8"><label class="form-label">Endereço</label><input type="text" id="curr-end" class="form-control" placeholder="Rua, número, bairro"></div>
+          <div class="col-md-4 d-flex align-items-end gap-2">
+            <div class="form-check mb-2"><input type="checkbox" id="curr-cnh" class="form-check-input"><label class="form-check-label" for="curr-cnh">Possui CNH</label></div>
+          </div>
+          <div class="col-md-6"><label class="form-label">Status</label>
+            <select id="curr-status" class="form-select">
+              <option value="recebido">📥 Recebido</option>
+              <option value="em_analise">⏳ Em Análise</option>
+              <option value="entrevista">📋 Entrevista Agendada</option>
+              <option value="aprovado">✅ Aprovado</option>
+              <option value="reprovado">❌ Reprovado</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label">Nota da Entrevista (0–10)</label><input type="number" id="curr-nota" class="form-control" placeholder="—" min="0" max="10"></div>
+          <div class="col-12"><label class="form-label">Observações / Resultado do Processo</label><textarea id="curr-obs" class="form-control" placeholder="Resultado da entrevista, observações..." rows="3"></textarea></div>
+          <!-- Chamado #118 -->
+          <div class="col-12">
+            <label class="form-label">Anexo do Currículo (PDF, máx. 5MB)</label>
+            <input type="file" id="curr-anexo-input" class="form-control" accept="application/pdf" onchange="CurriculoModule.onSelecionarAnexo(this.files[0])">
+            <div id="curr-anexo-status" class="small mt-1 text-muted"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-curriculo')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" onclick="salvarCurriculo()"><i class="bi bi-check-lg"></i> Salvar Currículo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: USUÁRIO
+     ================================================================ -->
+<div class="amp-modal" id="modal-usuario">
+  <div class="amp-modal-content modal-lg">
+    <div class="amp-modal-header">
+      <div class="amp-modal-title">👤 Cadastro de Usuário</div>
+      <button class="modal-close-btn" onclick="closeModal('modal-usuario')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <form id="form-usuario" onsubmit="return false;">
+        <div class="row g-3">
+          <!-- Foto de Perfil -->
+          <div class="col-12">
+            <label class="form-label">Foto de Perfil <span class="small text-muted">(PNG, máx. 2MB)</span></label>
+            <div class="d-flex align-items-center gap-3">
+              <div id="usr-foto-preview" style="width:64px;height:64px;border-radius:50%;background:var(--d-bgc-e5e7eb);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                <i class="bi bi-person-fill" style="font-size:28px;color:var(--d-txt-9ca3af);"></i>
+              </div>
+              <div class="flex-grow-1">
+                <input type="file" id="usr-foto" class="form-control" accept=".png,image/png">
+                <div id="usr-foto-error" class="small text-danger mt-1" style="display:none;"></div>
+                <div class="small text-muted mt-1">Apenas arquivos PNG. Tamanho máximo: 2MB.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12"><label class="form-label">Nome Completo <span class="required">*</span></label><input type="text" id="usr-nome" class="form-control" placeholder="Nome"></div>
+          <div class="col-md-4"><label class="form-label">Sigla (2 letras) <span class="required">*</span></label><input type="text" id="usr-sigla" class="form-control" placeholder="CM" maxlength="3" style="text-transform:uppercase;"></div>
+          <div class="col-md-8"><label class="form-label">E-mail <span class="required">*</span></label><input type="email" id="usr-email" class="form-control" placeholder="email@empresa.com.br"></div>
+          <div class="col-12"><label class="form-label">Senha inicial <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="password" id="usr-senha" class="form-control" placeholder="Mínimo 8 caracteres" minlength="8">
+              <button type="button" class="btn btn-outline-secondary" id="usr-senha-toggle" title="Mostrar/Ocultar senha" tabindex="-1">
+                <i class="bi bi-eye-fill" id="usr-senha-toggle-icon"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6"><label class="form-label">Filial <span class="required">*</span></label>
+            <select id="usr-filial" class="form-select">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label">Perfil <span class="required">*</span></label>
+            <select id="usr-perfil" class="form-select">
+              <option value="">Selecione...</option>
+              <option value="especialista">Especialista</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="gerente">Gerente</option>
+            </select>
+          </div>
+          <div class="col-md-6"><label class="form-label">Meta — Valor Mensalidade (R$)</label><input type="text" id="usr-meta-mensal" class="form-control" placeholder="R$ 2.448,60" title="Valor total de mensalidades esperado por mês desse especialista"></div>
+          <div class="col-md-6"><label class="form-label">Meta — Quantidade de Vendas</label><input type="number" id="usr-meta-vendas" class="form-control" placeholder="14"></div>
+
+          <!-- RN-17 / Chamado #51: Degraus de meta — dois caminhos (quantidade de vendas OU valor de mensalidade) -->
+          <div class="col-12"><hr style="margin:6px 0;opacity:.4;"><div class="small text-muted mb-2"><i class="bi bi-trophy-fill" style="color:var(--d-txt-d91a3c);"></i> Degraus de comissão — cada degrau pode ser atingido por <strong>quantidade de vendas</strong> <em>ou</em> por <strong>valor de mensalidade</strong> (o que ocorrer primeiro). Deixe em <strong>zero</strong> o caminho que não quiser usar. Configuráveis mensalmente (versões dos meses passados ficam preservadas).</div></div>
+          <div class="col-md-4">
+            <label class="form-label">Super Meta <span class="small text-muted">(bônus +R$ 200)</span></label>
+            <input type="number" id="usr-meta-super" class="form-control mb-1" placeholder="nº de vendas — ex: 18" title="Quantidade mínima de vendas no mês para atingir a Super Meta">
+            <input type="text" id="usr-meta-super-mensal" class="form-control mask-valor" placeholder="ou valor R$ — ex: 3.148,20" title="Valor de mensalidade acumulada no ciclo que também atinge a Super Meta">
+            <div class="form-text small">Atinge por vendas <strong>ou</strong> por valor → +R$ 200.</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Power Meta <span class="small text-muted">(bônus +R$ 800)</span></label>
+            <input type="number" id="usr-meta-power" class="form-control mb-1" placeholder="nº de vendas — ex: 22" title="Quantidade mínima de vendas no mês para atingir a Power Meta">
+            <input type="text" id="usr-meta-power-mensal" class="form-control mask-valor" placeholder="ou valor R$ — ex: 3.847,80" title="Valor de mensalidade acumulada no ciclo que também atinge a Power Meta">
+            <div class="form-text small">Atinge por vendas <strong>ou</strong> por valor → +R$ 800.</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">The King <span class="small text-muted">(bônus +R$ 1.800)</span></label>
+            <input type="number" id="usr-meta-king" class="form-control mb-1" placeholder="nº de vendas — ex: 32" title="Quantidade mínima de vendas no mês para atingir a The King Meta">
+            <input type="text" id="usr-meta-king-mensal" class="form-control mask-valor" placeholder="ou valor R$ — ex: 5.596,80" title="Valor de mensalidade acumulada no ciclo que também atinge a The King Meta">
+            <div class="form-text small">Atinge por vendas <strong>ou</strong> por valor → +R$ 1.800.</div>
+          </div>
+
+          <!-- VIS-SUP-1: Especialistas sob supervisão (visível apenas em edição de supervisor) -->
+          <div class="col-12" id="usr-especialistas-wrapper" style="display:none;">
+            <label class="form-label">
+              Especialistas sob supervisão
+              <span class="small text-muted">— o supervisor verá os leads dos especialistas marcados</span>
+            </label>
+            <div id="usr-especialistas-lista"
+                 style="max-height:220px;overflow-y:auto;border:1px solid var(--d-brd-e5e7eb);border-radius:6px;padding:8px;background:var(--d-bgc-fafafa);">
+              <div class="small text-muted p-2">Selecione uma filial para listar os especialistas.</div>
+            </div>
+            <div class="small text-muted mt-1">
+              <i class="bi bi-info-circle"></i>
+              Especialistas de todas as filiais. Marque os que este supervisor irá acompanhar (o vínculo não depende da filial).
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-usuario')">Cancelar</button>
+      <button id="btn-salvar-usuario" class="btn-beyond btn-primary-amp" onclick="salvarUsuario()"><i class="bi bi-check-lg"></i> Cadastrar Usuário</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAIS NOVOS: Visibilidade / Transferência / Inativação
+     ============================================================ -->
+
+<!-- MODAL: TRANSFERÊNCIA DE LEAD -->
+<div class="amp-modal" id="modal-transferencia">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🔁 Transferir Lead</div>
+        <div class="amp-modal-subtitle">O usuário atual perderá visibilidade</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-transferencia')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <input type="hidden" id="transf-lead-uuid">
+
+      <div class="alert-info-amp mb-3">
+        <i class="bi bi-info-circle"></i> <span id="transf-lead-info">—</span>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Destinatário <span class="text-danger">*</span></label>
+        <select id="transf-destino" class="form-select">
+          <option value="">Carregando...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Motivo (opcional)</label>
+        <textarea id="transf-motivo" class="form-control" rows="2"
+          placeholder="Ex.: redistribuição por carga de trabalho"></textarea>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-transferencia')">Cancelar</button>
+      <button id="btn-confirmar-transf" class="btn-beyond btn-primary-amp" onclick="TransferenciaModule.confirmar()">
+        <i class="bi bi-check-lg"></i> Confirmar Transferência
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: TRANSFERÊNCIA EM LOTE (feature 4.3 do Pacote 1 v1.3.0)
+     ================================================================ -->
+<div class="amp-modal" id="modal-transferencia-lote">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">🔁 Transferir <span id="transf-lote-count">0</span> Lead(s)</div>
+        <div class="amp-modal-subtitle">Redistribuição em lote — mesmo destinatário para todos</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-transferencia-lote')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+
+      <div class="alert-info-amp mb-3">
+        <i class="bi bi-info-circle"></i>
+        Os leads abaixo serão transferidos para o destinatário selecionado. Os responsáveis atuais perderão a visibilidade (exceto supervisores/gerentes conforme regras de acesso).
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Leads selecionados</label>
+        <div id="transf-lote-preview" class="transf-lote-preview-box">
+          <!-- Preenchido dinamicamente por TransferenciaLoteModule._preencherPreview -->
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Destinatário <span class="text-danger">*</span></label>
+        <select id="transf-lote-destino" class="form-select">
+          <option value="">Carregando...</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Motivo (opcional)</label>
+        <textarea id="transf-lote-motivo" class="form-control" rows="2"
+          placeholder="Ex.: redistribuição por carga de trabalho"></textarea>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-transferencia-lote')">Cancelar</button>
+      <button id="btn-confirmar-transf-lote" class="btn-beyond btn-primary-amp" onclick="TransferenciaLoteModule.confirmar()">
+        <i class="bi bi-check-lg"></i> Confirmar Transferência
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     MODAL: TELEFONE DUPLICADO (feature 4.4 / RN-25 — Pacote 2 v1.4.0)
+     ================================================================ -->
+<div class="amp-modal" id="modal-tel-duplicado">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">⚠️ Telefone já em uso</div>
+        <div class="amp-modal-subtitle">Este número já está sendo tratado no sistema</div>
+      </div>
+      <button class="modal-close-btn" onclick="FunilModule.cancelarCadastroDuplicado()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+
+      <div class="alert-warning-amp mb-3" style="background:var(--d-bgc-fef3c7);border:1px solid var(--d-brd-fbbf24);color:var(--d-txt-92400e);padding:12px 14px;border-radius:8px;">
+        <div style="font-weight:600;margin-bottom:4px;"><i class="bi bi-exclamation-triangle-fill"></i> Duplicidade detectada</div>
+        <div style="font-size:13px;">
+          Você está tentando cadastrar <strong id="dup-novo-nome">—</strong> com o telefone <strong id="dup-novo-tel">—</strong>,
+          mas este número já está associado a <strong><span id="dup-count">0</span> lead(s) ativo(s)</strong> na base.
+        </div>
+      </div>
+
+      <div class="form-group mb-2">
+        <label class="form-label">Lead(s) existente(s) com esse telefone</label>
+        <div id="dup-lista" class="dup-lista-box">
+          <!-- Populado dinamicamente por FunilModule._abrirModalTelDuplicado -->
+        </div>
+      </div>
+
+      <div class="text-muted small mt-3" style="line-height:1.5;">
+        <i class="bi bi-info-circle"></i> Se prosseguir, o lead será cadastrado normalmente e uma notificação
+        será enviada aos gerentes da sua filial, que poderão decidir como tratar a duplicidade
+        (manter os dois cadastros, transferir ou consolidar).
+      </div>
+
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="FunilModule.cancelarCadastroDuplicado()">
+        <i class="bi bi-arrow-left"></i> Cancelar (corrigir telefone)
+      </button>
+      <button id="btn-dup-confirmar" class="btn-beyond btn-primary-amp" onclick="FunilModule.confirmarCadastroComDuplicado()">
+        <i class="bi bi-check-lg"></i> Cadastrar mesmo assim e Notificar Gerente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     DRAWER: FILTROS AVANÇADOS (feature 4.10 / RN-26 — Pacote 2 v1.4.0)
+     ================================================================ -->
+<!-- ================================================================
+     DRAWER: FILTROS DA AGENDA (v2.1 — Sprint 6 / Patch 1 / RF-37)
+     ================================================================ -->
+<div class="fa-drawer" id="filtro-agenda-drawer">
+  <div class="fa-drawer-backdrop" onclick="AgendaModule.fecharFiltroAvancado()"></div>
+  <div class="fa-drawer-panel">
+    <div class="fa-drawer-header">
+      <div>
+        <div class="fa-drawer-title">📅 Filtros da Agenda</div>
+        <div class="fa-drawer-subtitle">Refine os agendamentos por período, especialista e filial</div>
+      </div>
+      <button class="fa-drawer-close" onclick="AgendaModule.fecharFiltroAvancado()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="fa-drawer-body" id="filtro-agenda-body">
+      <!-- Populado dinamicamente por FiltroAvancadoComponent.montar() -->
+    </div>
+    <div class="fa-drawer-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="AgendaModule.limparFiltroAvancado()">
+        <i class="bi bi-x-circle"></i> Limpar
+      </button>
+      <button class="btn-beyond btn-primary-amp" onclick="AgendaModule.aplicarFiltroAvancado()">
+        <i class="bi bi-check-lg"></i> Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Chamado #72 — Drawer do filtro avançado de Currículos -->
+<div class="fa-drawer" id="filtro-curriculo-drawer">
+  <div class="fa-drawer-backdrop" onclick="CurriculoModule.fecharFiltroAvancado()"></div>
+  <div class="fa-drawer-panel">
+    <div class="fa-drawer-header">
+      <div>
+        <div class="fa-drawer-title">📄 Filtros de Currículos</div>
+        <div class="fa-drawer-subtitle">Data de cadastro, nota, CNH, perfil e busca</div>
+      </div>
+      <button class="fa-drawer-close" onclick="CurriculoModule.fecharFiltroAvancado()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="fa-drawer-body" id="filtro-curriculo-body">
+      <!-- Populado por FiltroAvancadoComponent.montar() -->
+    </div>
+    <div class="fa-drawer-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="CurriculoModule.limparFiltroAvancado()">
+        <i class="bi bi-x-circle"></i> Limpar
+      </button>
+      <button class="btn-beyond btn-primary-amp" onclick="CurriculoModule.aplicarFiltroAvancado()">
+        <i class="bi bi-check-lg"></i> Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     DRAWER: FILTROS DO HISTÓRICO (v2.1 — Sprint 6 / Patch 1 / 6.4)
+     ================================================================ -->
+<div class="fa-drawer" id="filtro-historico-drawer">
+  <div class="fa-drawer-backdrop" onclick="HistoricoModule.fecharFiltroAvancado()"></div>
+  <div class="fa-drawer-panel">
+    <div class="fa-drawer-header">
+      <div>
+        <div class="fa-drawer-title">📋 Filtros do Histórico</div>
+        <div class="fa-drawer-subtitle">Período, especialista, resultado e filial</div>
+      </div>
+      <button class="fa-drawer-close" onclick="HistoricoModule.fecharFiltroAvancado()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="fa-drawer-body" id="filtro-historico-body">
+      <!-- Populado dinamicamente por FiltroAvancadoComponent.montar() -->
+    </div>
+    <div class="fa-drawer-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="HistoricoModule.limparFiltroAvancado()">
+        <i class="bi bi-x-circle"></i> Limpar
+      </button>
+      <button class="btn-beyond btn-primary-amp" onclick="HistoricoModule.aplicarFiltroAvancado()">
+        <i class="bi bi-check-lg"></i> Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Sprint 7 · 7.5 — Drawer de filtros da Auditoria -->
+<div class="fa-drawer" id="filtro-auditoria-drawer">
+  <div class="fa-drawer-backdrop" onclick="AuditModule.fecharFiltroAvancado()"></div>
+  <div class="fa-drawer-panel">
+    <div class="fa-drawer-header">
+      <div>
+        <div class="fa-drawer-title">📜 Filtros da Auditoria</div>
+        <div class="fa-drawer-subtitle">Período, usuário, tipo de operação e busca livre</div>
+      </div>
+      <button class="fa-drawer-close" onclick="AuditModule.fecharFiltroAvancado()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="fa-drawer-body" id="filtro-auditoria-body">
+      <!-- Populado dinamicamente por FiltroAvancadoComponent.montar() -->
+    </div>
+    <div class="fa-drawer-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="AuditModule.limparFiltroAvancado()">
+        <i class="bi bi-x-circle"></i> Limpar
+      </button>
+      <button class="btn-beyond btn-primary-amp" onclick="AuditModule.aplicarFiltroAvancado()">
+        <i class="bi bi-check-lg"></i> Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="fa-drawer" id="filtro-avancado-drawer">
+  <div class="fa-drawer-backdrop" onclick="FunilModule.fecharFiltroAvancado()"></div>
+  <div class="fa-drawer-panel">
+    <div class="fa-drawer-header">
+      <div>
+        <div class="fa-drawer-title">🎯 Filtros Avançados</div>
+        <div class="fa-drawer-subtitle">Combine filtros para refinar a visualização do funil</div>
+      </div>
+      <button class="fa-drawer-close" onclick="FunilModule.fecharFiltroAvancado()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="fa-drawer-body" id="filtro-avancado-body">
+      <!-- Populado dinamicamente por FiltroAvancadoComponent.montar() -->
+    </div>
+    <div class="fa-drawer-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="FunilModule.limparFiltroAvancado()">
+        <i class="bi bi-x-circle"></i> Limpar
+      </button>
+      <button class="btn-beyond btn-primary-amp" onclick="FunilModule.aplicarFiltroAvancado()">
+        <i class="bi bi-check-lg"></i> Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     DRAWER: FILTROS DO DASHBOARD (feature 4.11 / RN-27 — Pacote 2 v1.4.0)
+     ================================================================ -->
+<div class="fa-drawer" id="filtro-dashboard-drawer">
+  <div class="fa-drawer-backdrop" onclick="FunilModule.fecharFiltroDashboard()"></div>
+  <div class="fa-drawer-panel">
+    <div class="fa-drawer-header">
+      <div>
+        <div class="fa-drawer-title">🎯 Filtros do Dashboard</div>
+        <div class="fa-drawer-subtitle">Recalcula Número Mágico e KPIs conforme os filtros</div>
+      </div>
+      <button class="fa-drawer-close" onclick="FunilModule.fecharFiltroDashboard()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="fa-drawer-body" id="filtro-dashboard-body">
+      <!-- Populado dinamicamente por FiltroAvancadoComponent.montar() -->
+    </div>
+    <div class="fa-drawer-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="FunilModule.limparFiltroDashboard()">
+        <i class="bi bi-x-circle"></i> Limpar
+      </button>
+      <button class="btn-beyond btn-primary-amp" onclick="FunilModule.aplicarFiltroDashboard()">
+        <i class="bi bi-check-lg"></i> Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COMPARTILHAMENTO COM SUPERVISORES -->
+<div class="amp-modal" id="modal-visibilidade">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">👥 Compartilhar com Supervisor(es)</div>
+        <div class="amp-modal-subtitle">Visualização adicional — não transfere o lead</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-visibilidade')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <input type="hidden" id="vis-lead-uuid">
+
+      <div class="alert-info-amp mb-3">
+        <i class="bi bi-info-circle"></i> <span id="vis-lead-info">—</span>
+      </div>
+
+      <p class="text-muted small mb-2">
+        Marque os supervisores que poderão visualizar e interagir com este lead.
+        O responsável atual continua com acesso normalmente.
+      </p>
+
+      <div id="vis-lista-container"></div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-visibilidade')">Cancelar</button>
+      <button id="btn-confirmar-vis" class="btn-beyond btn-primary-amp" onclick="VisibilidadeModule.confirmar()">
+        <i class="bi bi-check-lg"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: INATIVAÇÃO DE USUÁRIO -->
+<div class="amp-modal" id="modal-inativacao">
+  <div class="amp-modal-content modal-lg">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">⛔ Inativar Usuário</div>
+        <div class="amp-modal-subtitle">Os leads devem ser redistribuídos antes da inativação</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-inativacao')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <p class="mb-3">
+        Inativando: <strong id="inativ-user-nome">—</strong>
+      </p>
+
+      <div id="inativ-sem-leads" style="display:none;">
+        <div class="alert-success-amp">
+          <i class="bi bi-check-circle"></i> Este usuário não possui leads sob sua responsabilidade. Pode ser inativado diretamente.
+        </div>
+      </div>
+
+      <div id="inativ-com-leads" style="display:none;">
+        <div class="alert-warning-amp mb-3">
+          <i class="bi bi-exclamation-triangle"></i>
+          O usuário possui <strong id="inativ-count">0</strong> lead(s).
+          Todos devem ser transferidos antes da inativação.
+        </div>
+
+        <input type="hidden" id="inativ-modo" value="massa">
+
+        <div class="inativ-modo-tabs mb-3">
+          <button id="btn-modo-massa" class="btn-beyond btn-secondary-amp active" onclick="InativacaoUsuarioModule._mudarModo('massa')">
+            <i class="bi bi-people-fill"></i> Transferir todos para um usuário
+          </button>
+          <button id="btn-modo-seletivo" class="btn-beyond btn-secondary-amp" onclick="InativacaoUsuarioModule._mudarModo('seletivo')">
+            <i class="bi bi-list-check"></i> Selecionar individualmente
+          </button>
+        </div>
+
+        <div id="inativ-bloco-massa">
+          <div class="form-group">
+            <label class="form-label">Destinatário de TODOS os leads <span class="text-danger">*</span></label>
+            <select id="inativ-destino-massa" class="form-select">
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="inativ-bloco-seletivo" style="display:none;">
+          <div class="form-group mb-3">
+            <label class="form-label">Destinatário padrão (para linhas em branco)</label>
+            <select id="inativ-destino-padrao" class="form-select">
+              <option value="">Carregando...</option>
+            </select>
+          </div>
+          <div id="inativ-tabela-leads" style="max-height:380px; overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-inativacao')">Cancelar</button>
+      <button id="btn-confirmar-inativ" class="btn-beyond btn-primary-amp" style="background:var(--d-bgc-dc2626);border-color:var(--d-brd-dc2626);" onclick="InativacaoUsuarioModule.confirmar()">
+        <i class="bi bi-person-x"></i> Confirmar Inativação
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Estilos dos modais novos -->
+<style>
+  .alert-info-amp {
+    background: #DBEAFE; color: #1E40AF; border: 1px solid #BFDBFE;
+    padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  }
+  .alert-warning-amp {
+    background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;
+    padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  }
+  .alert-success-amp {
+    background: #D1FAE5; color: #065F46; border: 1px solid #A7F3C0;
+    padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  }
+  .vis-lista {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 360px; overflow-y: auto;
+    border: 1px solid #E5E7EB; border-radius: 8px;
+    padding: 8px;
+  }
+  .vis-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer;
+    transition: background .15s;
+  }
+  .vis-item:hover { background: #F9FAFB; }
+  .vis-item input[type="checkbox"] {
+    width: 18px; height: 18px; cursor: pointer; margin: 0;
+  }
+  .vis-info { flex: 1; }
+  .vis-nome { font-size: 13px; font-weight: 700; color: #111827; }
+  .vis-sigla { font-weight: 500; color: #6B7280; font-size: 11px; }
+  .vis-filial { font-size: 11px; color: #6B7280; margin-top: 2px; }
+  .inativ-modo-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .inativ-modo-tabs .btn-beyond.active {
+    background: #1E2358; color: white; border-color: #1E2358;
+  }
+  .cod-mono {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    background: #F3F4F6; padding: 2px 6px; border-radius: 4px;
+  }
+</style>
+
+<!-- ================================================================
+     MODAL: IMPORTAR LEADS (AJUSTE 4)
+     ================================================================ -->
+<!-- Sprint 7 · 7.3 — Modal de Importação (v2.0)
+     - Aceita CSV e XLSX
+     - Botão pra baixar planilha modelo (Beyond_Modelo_Importacao_Leads.xlsx)
+     - Preview em tabela com validação, dedup e categorização (ok/aviso/erro)
+     - Modal maior (sem modal-sm) pra caber o preview -->
+<div class="amp-modal" id="modal-importar-leads">
+  <div class="amp-modal-content">
+    <div class="amp-modal-header">
+      <div>
+        <div class="amp-modal-title">📥 Importar Leads</div>
+        <div class="amp-modal-subtitle">Envie uma planilha CSV ou Excel com os leads</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeModal('modal-importar-leads')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <div class="alert" style="background:var(--d-bgc-eff6ff);border:1px solid var(--d-brd-bfdbfe);border-radius:8px;padding:12px;font-size:13px;color:var(--d-txt-1e3a8a);">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong><i class="bi bi-file-earmark-spreadsheet"></i> Use nossa planilha modelo</strong><br>
+            <span class="text-muted">Formatos aceitos: <code>.xlsx</code>, <code>.xls</code>, <code>.csv</code>. Colunas obrigatórias: <strong>Nome</strong> e <strong>Telefone</strong>.</span>
+          </div>
+          <button class="btn-beyond btn-secondary-amp btn-sm-amp" onclick="FunilModule.baixarModeloImportacao()" title="Baixar planilha modelo com todos os campos aceitos">
+            <i class="bi bi-download"></i> Baixar modelo
+          </button>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Arquivo</label>
+        <input type="file" id="import-file" class="form-control" accept=".csv,.xlsx,.xls">
+      </div>
+      <div id="import-preview"></div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-importar-leads')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" onclick="FunilModule.processarImportacao()"><i class="bi bi-upload"></i> Processar Importação</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NOVA FILIAL -->
+<div class="amp-modal" id="modal-nova-filial">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div class="amp-modal-title">🏢 Nova Filial</div>
+      <button class="modal-close-btn" onclick="closeModal('modal-nova-filial')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <div class="row g-3">
+        <div class="col-12"><label class="form-label">Nome da Filial <span class="required">*</span></label><input type="text" id="filial-nome" class="form-control" placeholder="Ex: Savassi"></div>
+        <div class="col-12"><label class="form-label">Local <span class="required">*</span></label><input type="text" id="filial-local" class="form-control" placeholder="Ex: Belo Horizonte (MG)"></div>
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-nova-filial')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" onclick="ConfigModule.salvarFilial()"><i class="bi bi-check-lg"></i> Cadastrar Filial</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NOVA TAG -->
+<div class="amp-modal" id="modal-nova-tag">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-header">
+      <div class="amp-modal-title">🏷️ Nova Tag</div>
+      <button class="modal-close-btn" onclick="closeModal('modal-nova-tag')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="amp-modal-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Emoji + Texto <span class="required">*</span></label>
+          <input type="text" id="tag-label" class="form-control" placeholder="Ex: 🔥 Quente">
+          <small class="form-text text-muted">Digite o emoji seguido do nome da tag. Ex: <code>🔥 Quente</code>, <code>❄️ Frio</code>, <code>📞 Não Agendou</code>.</small>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Cor da tag <span class="required">*</span></label>
+          <div id="tag-cor-palette" class="tag-cor-palette"></div>
+          <input type="hidden" id="tag-cor-bg">
+          <input type="hidden" id="tag-cor-texto">
+          <div id="tag-preview-container" class="mt-2" style="display:none;">
+            <small class="text-muted me-2">Pré-visualização:</small>
+            <span class="amp-tag" id="tag-preview" style="font-size:12px;padding:5px 12px;">Preview</span>
+          </div>
+        </div>
+        <input type="hidden" id="tag-slug">
+      </div>
+    </div>
+    <div class="amp-modal-footer">
+      <button class="btn-beyond btn-secondary-amp" onclick="closeModal('modal-nova-tag')">Cancelar</button>
+      <button class="btn-beyond btn-primary-amp" onclick="ConfigModule.salvarTag()"><i class="bi bi-check-lg"></i> Cadastrar Tag</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="amp-modal" id="modal-confirm">
+  <div class="amp-modal-content modal-sm">
+    <div class="amp-modal-body text-center py-3">
+      <div class="cd-icon" id="cd-icon">❓</div>
+      <div class="cd-title" id="cd-title">Confirmar</div>
+      <div class="cd-msg text-muted" id="cd-msg">Tem certeza?</div>
+      <div class="cd-actions">
+        <button class="btn-beyond btn-secondary-amp w-100 justify-content-center" onclick="confirmNo()">Cancelar</button>
+        <button class="btn-beyond btn-primary-amp w-100 justify-content-center" onclick="confirmYes()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAINEL DE DIAGNÓSTICO SUPABASE -->
+<div id="supa-panel" style="display:none; position:fixed;bottom:0;right:0;width:420px;max-height:260px;z-index:9999;font-family:'JetBrains Mono',monospace;font-size:11px;">
+  <div style="background:var(--d-bgc-1e2358);color:var(--d-txt-ffffff);padding:6px 12px;display:flex;justify-content:space-between;align-items:center;border-radius:8px 8px 0 0;cursor:pointer;" onclick="document.getElementById('supa-log').style.display=document.getElementById('supa-log').style.display==='none'?'block':'none';">
+    <span>🔌 Supabase Log</span>
+    <span style="opacity:.6;font-size:10px;">click para toggle</span>
+  </div>
+  <div id="supa-log" style="background:var(--d-bgc-0f1129);color:var(--d-txt-a3e635);padding:8px 12px;max-height:200px;overflow-y:auto;border:1px solid var(--d-brd-1e2358);border-top:0;"></div>
+</div>
+<style>
+  .slog-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .slog-ts{color:#6b7280;margin-right:8px;}
+  .slog-icon{margin-right:6px;}
+  .slog-ok{color:#a3e635;}
+  .slog-warn{color:#fbbf24;}
+  .slog-err{color:#f87171;}
+  .slog-load{color:#60a5fa;}
+</style>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- Chamado #41: mini-agenda do Dashboard descontinuada; o script
+     de sincronização (SYNC: Mini agenda...) foi removido junto.
+     O hook de re-render do Atingimento de Metas ao entrar no
+     Dashboard (PATCH MET-4.6) foi preservado abaixo. -->
+<script>
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var origNavigate = window.navigate;
+    window.navigate = function(page) {
+      if (origNavigate) origNavigate(page);
+      if (page === 'dashboard') {
+        /* Re-renderiza Atingimento de Metas ao entrar no Dashboard (PATCH MET-4.6) */
+        if (typeof MetasModule !== 'undefined') {
+          setTimeout(function() { MetasModule.renderAtingimento(); }, 120);
+        }
+      }
+    };
+  });
+})();
+</script>
+
+<!-- SCRIPTS -->
+<!-- CDN -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>   <!-- NOVO — Pacote 2 v1.4.0 (feature 4.6) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- Infra Supabase (ordem importa) -->
+<!-- Beyond CRM (edição demonstração): o app roda 100% com dados fictícios em
+     memória (js/mock/). Não há banco real — estes valores só satisfazem o
+     SupabaseClient.js, que recebe o cliente simulado do MockSupabase.js. -->
+<script>
+  var SupabaseEnv = {
+    URL:      'https://demo.beyondcrm.local',
+    ANON_KEY: 'demo',
+  };
+</script>
+<!-- Modo demonstração (sempre ativo no Beyond CRM): troca o cliente Supabase
+     por uma base fictícia em memória, com login automático. -->
+<script src="js/mock/MockMode.js"></script>
+<script src="js/mock/MockData.js"></script>
+<script src="js/mock/MockSupabase.js"></script>
+<script src="js/infra/SupabaseClient.js"></script>
+<script src="js/infra/AppVersion.js"></script>
+
+<!-- Core -->
+<script src="js/constants.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/store.js"></script>
+<script src="js/components/Toast.js"></script>
+<script src="js/components/Modal.js"></script>
+<script src="js/components/ConfirmDialog.js"></script>
+<script src="js/components/KanbanCard.js"></script>
+<script src="js/components/FiltroAvancadoComponent.js"></script>   <!-- NOVO — Pacote 2 v1.4.0 -->
+<script src="js/controllers/Controllers.js"></script>
+
+<!-- Sync + Services (precisam existir antes dos modules) -->
+<script src="js/infra/SupabaseSync.js"></script>
+<script src="js/infra/AuditLogger.js"></script>
+<script src="js/services/AuthService.js"></script>
+<script src="js/services/AvatarService.js"></script>
+<script src="js/services/CurriculoAnexoService.js"></script>
+<script src="js/services/LeadService.js"></script>
+<script src="js/services/LigacaoService.js"></script>
+<script src="js/services/AgendaService.js"></script>
+<script src="js/services/VisitaService.js"></script>
+<script src="js/services/VendaService.js"></script>
+<script src="js/services/CarteiraService.js"></script>
+
+<!-- Services novos: visibilidade e transferencia -->
+<script src="js/services/LeadTransferService.js"></script>
+<script src="js/services/LeadVisibilidadeService.js"></script>
+
+<!-- Services Pacote 1 v1.3.0 — Arquivamento + Notificação prévia de agendamentos -->
+<script src="js/services/ArquivamentoService.js"></script>
+<script src="js/services/NotificacaoAgendamentoService.js"></script>
+
+<!-- Services Pacote 2 v1.4.0 — Feature 4.4 (RN-25) -->
+<script src="js/services/LeadDuplicadoService.js"></script>
+
+<!-- Services Pacote 2 v1.4.0 — Feature 4.9 (RN-29) — Sincronização em tempo real -->
+<script src="js/services/RealtimeService.js"></script>
+
+<script src="js/modules/FunilModule.js"></script>
+<script src="js/modules/TaxaConversaoModule.js"></script>
+<script src="js/modules/AniversariantesModule.js"></script>
+<script src="js/modules/PerformanceEspecialistasModule.js"></script>
+<script src="js/modules/RelatorioAnaliticoModule.js"></script>
+<script src="js/modules/LigacoesCarteiraModule.js"></script>
+<script src="js/modules/Modules.js"></script>
+
+<!-- Modules novos: visibilidade, transferencia, inativacao -->
+<script src="js/modules/TransferenciaModule.js"></script>
+<script src="js/modules/TransferenciaLoteModule.js"></script>
+<script src="js/modules/VisibilidadeModule.js"></script>
+<script src="js/modules/InativacaoUsuarioModule.js"></script>
+
+<!-- Wiki — Central de Conhecimento -->
+<script src="js/modules/WikiModule.js"></script>
+
+<!-- Hook que injeta botoes no modal-lead automaticamente -->
+<script src="js/init/LeadModalHooks.js"></script>
+
+<!-- Patch: redireciona UsuarioModule.inativar/excluir para o fluxo novo -->
+<script src="js/init/UsuarioModulePatch.js"></script>
+<script src="js/init/VisSupUIPatch.js"></script>
+<script src="js/router.js"></script>
+<!-- Beyond CRM — dashboard de insights + acabamentos de interface -->
+<script src="js/beyond/BeyondDashboard.js"></script>
+<script src="js/beyond/BeyondUI.js"></script>
+
+<!-- App (ponto de entrada — por último) -->
+<script src="js/app.js"></script>
+
+<!-- Botão "Atualizar sistema" — força buscar a versão mais recente (evita cache velho) -->
+<script src="js/ForceRefresh.js"></script>
+</body>
+</html>

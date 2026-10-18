@@ -1,0 +1,357 @@
+/* ============================================================
+   BEYOND CRM — styles_dark.css   (Chamado #59 — Modo escuro) v2
+   Beyond Bits Tecnologia © 2026
+   ============================================================
+   Ativado por [data-theme="dark"] no <html> — setado no boot ANTES do
+   paint (script anti-flash no <head>) e alternado pelo botão do header.
+
+   ESTRUTURA:
+     A) Variáveis semânticas invertidas.
+     B) Textos que usam var(--marinho) -> tom claro (o parser não pega
+        variáveis, então estes ficam aqui, à mão).
+     C) Catch-all de nativos + Bootstrap (inputs, selects, modais...).
+     D) Rede de segurança p/ cores inline no atributo style=.
+     E) BLOCO GERADO (no fim do arquivo): overrides derivados das cores
+        hard-coded do styles_base.css, respeitando fundo vs texto.
+
+   ┌──────────────────────────────────────────────────────────┐
+   │ CONVENÇÃO PARA IMPLEMENTAÇÕES FUTURAS                     │
+   │ Use SEMPRE variáveis semânticas em vez de hex fixo:       │
+   │   fundo tela var(--bg) · card var(--bg-card) ·            │
+   │   sutil var(--bg-subtle) · texto var(--text) ·            │
+   │   secundário var(--text-muted) · borda var(--border) ·    │
+   │   marca/título var(--marinho-txt) ·                       │
+   │   status var(--verde/amarelo/azul/roxo/vermelho[-s])      │
+   │ Componentes que usem essas variáveis já nascem legíveis   │
+   │ no escuro — sem tocar neste arquivo.                      │
+   └──────────────────────────────────────────────────────────┘
+   ============================================================ */
+
+
+/* ===== A) Variáveis invertidas ===== */
+[data-theme="dark"] {
+  --bg:             #0E1023;
+  --bg-card:        #181B33;
+  --bg-subtle:      #12152B;   /* fundos sutis (era cinza-claro) */
+  --border:         #2B2F4E;
+  --border-strong:  #3A3F63;
+  --text:           #E9EBFA;
+  --text-muted:     #A6ABD0;
+  --text-light:     #757AA0;
+
+  --marinho:        #1E2358;
+  --marinho-esc:    #0B0D1F;
+  --marinho-cl:     #2D3380;
+  --marinho-s:      #20264F;
+  --marinho-b:      #3A4066;
+  --marinho-txt:    #AAB2EC;
+
+  --vermelho-s:     rgba(240, 41, 78, .16);
+  --verde-s:        rgba(16, 166, 74, .16);
+  --amarelo-s:      rgba(245, 158, 11, .16);
+  --azul-s:         rgba(59, 130, 246, .16);
+  --roxo-s:         rgba(139, 92, 246, .16);
+
+  --shadow:         0 2px 12px rgba(0, 0, 0, .45);
+  --shadow-md:      0 6px 28px rgba(0, 0, 0, .55);
+  --shadow-lg:      0 12px 48px rgba(0, 0, 0, .65);
+
+  color-scheme: dark;
+}
+/* Ticket #7 — este :root batia no <html> o tempo todo (mesma especificidade
+   de [data-theme="dark"] acima, mas vindo depois no arquivo), então
+   sobrescrevia --marinho-txt de volta pro navy escuro mesmo com o tema
+   escuro ativo — por isso "Dados do Agendamento", "Checklist de
+   Confirmação" etc. continuavam ilegíveis. Só deve valer no claro. */
+:root:not([data-theme="dark"]) { --marinho-txt: #1E2358; --bg-subtle: #F9FAFB; }  /* no claro, mantém aparência atual */
+
+[data-theme="dark"] body { background: var(--bg); color: var(--text); }
+
+
+/* ===== B) Textos que usam var(--marinho) -> claro (parser não pega) ===== */
+[data-theme="dark"] .amp-card-title,
+[data-theme="dark"] .cd-title,
+[data-theme="dark"] .config-section-title,
+[data-theme="dark"] .form-section-title,
+[data-theme="dark"] .rel-card-header,
+[data-theme="dark"] .changelog-grupo-titulo,
+[data-theme="dark"] .changelog-versao-num,
+[data-theme="dark"] .badge-especialista,
+[data-theme="dark"] .hora-badge,
+[data-theme="dark"] .tag-novo,
+[data-theme="dark"] .raniv-avatar,
+[data-theme="dark"] .resp-avatar,
+[data-theme="dark"] .avatar-circle,
+[data-theme="dark"] .gcal-view-btn.active,
+[data-theme="dark"] .vres-btn:hover { color: var(--marinho-txt) !important; }
+
+
+/* ===== C) Catch-all: nativos + Bootstrap ===== */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--bg-card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder { color: var(--text-light) !important; }
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  border-color: var(--marinho-cl) !important;
+  box-shadow: 0 0 0 .2rem rgba(45, 51, 128, .35) !important;
+}
+/* Seta do select nativo — clara e SEM repetir (corrige as "setinhas") */
+[data-theme="dark"] select.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23A6ABD0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right .75rem center !important;
+  background-size: 16px 12px !important;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .list-group-item,
+[data-theme="dark"] .dropdown-menu,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .popover,
+[data-theme="dark"] .accordion-item,
+[data-theme="dark"] .offcanvas {
+  background-color: var(--bg-card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="dark"] .dropdown-item { color: var(--text) !important; }
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus { background-color: var(--marinho-s) !important; }
+[data-theme="dark"] .dropdown-divider,
+[data-theme="dark"] hr { border-color: var(--border) !important; opacity: 1; }
+
+[data-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: var(--text); color: var(--text) !important; }
+[data-theme="dark"] .table > :not(caption) > * > * {
+  background-color: transparent !important;
+  border-bottom-color: var(--border) !important;
+  color: var(--text) !important;
+}
+[data-theme="dark"] .table thead th { color: var(--text-muted) !important; }
+[data-theme="dark"] .table-hover > tbody > tr:hover > * { background-color: var(--marinho-s) !important; }
+
+[data-theme="dark"] .btn-outline-secondary { color: var(--text) !important; border-color: var(--border-strong) !important; }
+[data-theme="dark"] .btn-outline-secondary:hover { background-color: var(--marinho-s) !important; color: var(--text) !important; }
+
+[data-theme="dark"] .text-dark,
+[data-theme="dark"] .text-body,
+[data-theme="dark"] .text-black { color: var(--text) !important; }
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .text-secondary { color: var(--text-muted) !important; }
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-light { background-color: var(--bg-card) !important; }
+
+[data-theme="dark"] .amp-modal-content,
+[data-theme="dark"] .amp-modal-header,
+[data-theme="dark"] .amp-modal-body,
+[data-theme="dark"] .amp-modal-footer {
+  background-color: var(--bg-card);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+
+/* ===== D) Rede de segurança p/ cores inline (atributo style=) ===== */
+[data-theme="dark"] [style*="background:#fff"],
+[data-theme="dark"] [style*="background: #fff"],
+[data-theme="dark"] [style*="background:#FFF"],
+[data-theme="dark"] [style*="background:#ffffff"],
+[data-theme="dark"] [style*="background:#FFFFFF"],
+[data-theme="dark"] [style*="background-color:#fff"],
+[data-theme="dark"] [style*="background:#fafafa"],
+[data-theme="dark"] [style*="background:#f9fafb"],
+[data-theme="dark"] [style*="background:#f5f6fa"],
+[data-theme="dark"] [style*="background:#F5F6FA"],
+[data-theme="dark"] [style*="background:#f3f4f6"],
+[data-theme="dark"] [style*="background:#f8f9fa"],
+[data-theme="dark"] [style*="background:#f8fafc"] { background-color: var(--bg-card) !important; }
+
+[data-theme="dark"] [style*="background:#fef3c7"],
+[data-theme="dark"] [style*="background:#FEF3C7"],
+[data-theme="dark"] [style*="background:#fffbeb"] { background-color: var(--amarelo-s) !important; }
+[data-theme="dark"] [style*="background:#dbeafe"],
+[data-theme="dark"] [style*="background:#DBEAFE"] { background-color: var(--azul-s) !important; }
+[data-theme="dark"] [style*="background:#d1fae5"],
+[data-theme="dark"] [style*="background:#ecfdf5"],
+[data-theme="dark"] [style*="background:#e8f8ee"] { background-color: var(--verde-s) !important; }
+[data-theme="dark"] [style*="background:#fdf1f4"],
+[data-theme="dark"] [style*="background:#fee2e2"],
+[data-theme="dark"] [style*="background:#FDF1F4"] { background-color: var(--vermelho-s) !important; }
+[data-theme="dark"] [style*="background:#ede9fe"],
+[data-theme="dark"] [style*="background:#EDE9FE"] { background-color: var(--roxo-s) !important; }
+
+[data-theme="dark"] [style*="color:#0e1023"],
+[data-theme="dark"] [style*="color:#111827"],
+[data-theme="dark"] [style*="color:#1f2937"],
+[data-theme="dark"] [style*="color:#1e2358"],
+[data-theme="dark"] [style*="color: #1e2358"],
+[data-theme="dark"] [style*="color:#1E2358"],
+[data-theme="dark"] [style*="color:#1e2761"],
+[data-theme="dark"] [style*="color:#1E2761"] { color: var(--marinho-txt) !important; }
+
+[data-theme="dark"] [style*="color:#374151"],
+[data-theme="dark"] [style*="color:#4b5563"],
+[data-theme="dark"] [style*="color:#6b7280"],
+[data-theme="dark"] [style*="color: #6b7280"],
+[data-theme="dark"] [style*="color:#6B7280"],
+[data-theme="dark"] [style*="color:#6b7095"],
+[data-theme="dark"] [style*="color:#9ca3af"],
+[data-theme="dark"] [style*="color:#9CA3AF"] { color: var(--text-muted) !important; }
+
+
+/* ===== Transição suave ao alternar tema ===== */
+body, .amp-card, .amp-modal-content, .sidebar, .app-header,
+input, select, textarea, .form-control, .table, .card {
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+#btn-tema i { pointer-events: none; }
+
+
+[data-theme="dark"]{
+  --d-bgc-000000: #000000;
+  --d-bgc-0f1129: #0f1129;
+  --d-bgc-0f172a: #0f172a;
+  --d-bgc-10a64a: rgba(16, 166, 74, 0.16);
+  --d-bgc-141745: #141745;
+  --d-bgc-1b6b3a: #1b6b3a;
+  --d-bgc-1e2358: #1e2358;
+  --d-bgc-1e2761: #1e2761;
+  --d-bgc-2563eb: rgba(37, 99, 235, 0.16);
+  --d-bgc-25d366: rgba(37, 211, 102, 0.16);
+  --d-bgc-2d3380: #2d3380;
+  --d-bgc-2d3579: #2d3579;
+  --d-bgc-7c3aed: #7c3aed;
+  --d-bgc-8b5cf6: rgba(139, 92, 246, 0.16);
+  --d-bgc-9ca3af: #141733;
+  --d-bgc-d1d5db: #141733;
+  --d-bgc-d1fae5: rgba(209, 250, 229, 0.16);
+  --d-bgc-d91a3c: #d91a3c;
+  --d-bgc-d97706: rgba(217, 119, 6, 0.16);
+  --d-bgc-dbeafe: rgba(219, 234, 254, 0.16);
+  --d-bgc-dc2626: #dc2626;
+  --d-bgc-e0f2fe: #1C2040;
+  --d-bgc-e2e8f0: #141733;
+  --d-bgc-e5e7eb: #141733;
+  --d-bgc-ecfdf5: #1C2040;
+  --d-bgc-ede9fe: #141733;
+  --d-bgc-eef2ff: #1C2040;
+  --d-bgc-eff6ff: #1C2040;
+  --d-bgc-f0294e: #f0294e;
+  --d-bgc-f1f5f9: #1C2040;
+  --d-bgc-f3f4f6: #1C2040;
+  --d-bgc-f59e0b: rgba(245, 158, 11, 0.16);
+  --d-bgc-f8fafc: #1C2040;
+  --d-bgc-f9fafb: #1C2040;
+  --d-bgc-fafafa: #1C2040;
+  --d-bgc-fafafb: #1C2040;
+  --d-bgc-fafbfc: #1C2040;
+  --d-bgc-fbbf24: rgba(251, 191, 36, 0.16);
+  --d-bgc-fbe6ea: #141733;
+  --d-bgc-fca5a5: rgba(252, 165, 165, 0.16);
+  --d-bgc-fce7f3: #141733;
+  --d-bgc-fdf1f4: #1C2040;
+  --d-bgc-fee2e2: #141733;
+  --d-bgc-fef08a: rgba(254, 240, 138, 0.16);
+  --d-bgc-fef2f2: #1C2040;
+  --d-bgc-fef2f5: #1C2040;
+  --d-bgc-fef3c7: rgba(254, 243, 199, 0.16);
+  --d-bgc-fffbeb: #1C2040;
+  --d-bgc-ffffff: #1C2040;
+  --d-brd-059669: #059669;
+  --d-brd-0ea5e9: #2B2F4E;
+  --d-brd-10b981: #2B2F4E;
+  --d-brd-1b6b3a: #1b6b3a;
+  --d-brd-1e2358: #1e2358;
+  --d-brd-2563eb: #2563eb;
+  --d-brd-3b82f6: #3b82f6;
+  --d-brd-6ee7b7: #2B2F4E;
+  --d-brd-7c3aed: #7c3aed;
+  --d-brd-8b5cf6: #8b5cf6;
+  --d-brd-93c5fd: #2B2F4E;
+  --d-brd-a7f3c0: #2B2F4E;
+  --d-brd-a7f3d0: #2B2F4E;
+  --d-brd-bae6fd: #2B2F4E;
+  --d-brd-bfdbfe: #2B2F4E;
+  --d-brd-c5c8ec: #2B2F4E;
+  --d-brd-d1d5db: #2B2F4E;
+  --d-brd-d91a3c: #d91a3c;
+  --d-brd-d97706: #2B2F4E;
+  --d-brd-dc2626: #dc2626;
+  --d-brd-ddd6fe: #2B2F4E;
+  --d-brd-e2e8f0: #2B2F4E;
+  --d-brd-e5e7eb: #2B2F4E;
+  --d-brd-f1f5f9: #2B2F4E;
+  --d-brd-f3f4f6: #2B2F4E;
+  --d-brd-f59e0b: #2B2F4E;
+  --d-brd-f7b8c4: #2B2F4E;
+  --d-brd-fbbf24: #2B2F4E;
+  --d-brd-fbcfe8: #2B2F4E;
+  --d-brd-fca5a5: #2B2F4E;
+  --d-brd-fde68a: #2B2F4E;
+  --d-brd-fecaca: #2B2F4E;
+  --d-txt-059669: #6BFACE;
+  --d-txt-065f46: #6FF6D0;
+  --d-txt-075985: #6EC7F7;
+  --d-txt-10a64a: #73F2A4;
+  --d-txt-10b981: #72F3C8;
+  --d-txt-111827: #88A3DD;
+  --d-txt-1b6b3a: #85E0A8;
+  --d-txt-1d4ed8: #7897ED;
+  --d-txt-1d6f42: #86DFAE;
+  --d-txt-1e2358: #8890DD;
+  --d-txt-1e2761: #8894DD;
+  --d-txt-1e3a8a: #819BE4;
+  --d-txt-1e40af: #7C96E9;
+  --d-txt-2563eb: #739BF2;
+  --d-txt-2c2664: #9188DD;
+  --d-txt-334155: #88ABDD;
+  --d-txt-3730a3: #8E88DD;
+  --d-txt-374151: #88A9DD;
+  --d-txt-3b82f6: #6DA2F8;
+  --d-txt-475569: #88ABDD;
+  --d-txt-4b5563: #88ABDD;
+  --d-txt-5b21b6: #A77DE8;
+  --d-txt-64748b: #88ABDD;
+  --d-txt-6b7280: #88A4DD;
+  --d-txt-713f12: #EAB07B;
+  --d-txt-78350f: #EEA277;
+  --d-txt-7c3aed: #A273F2;
+  --d-txt-92400e: #F2A373;
+  --d-txt-991b1b: #E87D7D;
+  --d-txt-9ca3af: #9ca3af;
+  --d-txt-9f1239: #EF7697;
+  --d-txt-a3e635: #a3e635;
+  --d-txt-a80f2a: #F27389;
+  --d-txt-cbd5e1: #cbd5e1;
+  --d-txt-d1d5db: #d1d5db;
+  --d-txt-d91a3c: #EF768C;
+  --d-txt-d97706: #FBB86A;
+  --d-txt-dc2626: #EA7B7B;
+  --d-txt-f59e0b: #f59e0b;
+  --d-txt-ffffff: #ffffff;
+}
+
+/* ===== Chamado #77 — títulos dos campos (labels) legíveis no modo escuro =====
+   .form-label usava var(--text-muted) (#A6ABD0), que ficava apagado sobre o
+   fundo azul-escuro. No dark, os títulos dos campos passam a usar o texto
+   claro principal (praticamente branco), como pedido. */
+[data-theme="dark"] .form-label { color: var(--text) !important; }
+
+/* ===== Ticket #7 — texto branco dentro dos cards de lead (Kanban) =====
+   Pedido pontual: subtítulos do card (telefone, fonte/origem, ID) e o
+   nome da etapa nas abas do card do lead (Lead/Ligação/Agendamento/
+   Visita/Venda/Carteira) ficam em branco no modo escuro, pra legibilidade. */
+[data-theme="dark"] .k-card-tel,
+[data-theme="dark"] .k-fonte,
+[data-theme="dark"] .k-card-id,
+[data-theme="dark"] .lead-tab { color: #FFFFFF !important; }
+[data-theme="dark"] .lead-tab.disabled { color: rgba(255, 255, 255, .45) !important; }
+[data-theme="dark"] .lead-tab.active { color: var(--vermelho-cl) !important; }

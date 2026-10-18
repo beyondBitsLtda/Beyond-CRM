@@ -1,0 +1,9 @@
+# Credenciais do Supabase (NUNCA commitar)
+js/infra/env.js
+
+# Dependências
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

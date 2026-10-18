@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Beyond CRM">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#A78BFA"/>
+      <stop offset="1" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="9" fill="url(#g)"/>
+  <path d="M9.5 9.5 16 16l-6.5 6.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M16.5 9.5 23 16l-6.5 6.5" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

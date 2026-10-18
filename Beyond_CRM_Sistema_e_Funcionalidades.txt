@@ -1,0 +1,221 @@
+==============================================================================
+                                 BEYOND CRM
+              Sistema comercial: do primeiro contato à carteira
+                       Beyond Bits Tecnologia - 2026
+==============================================================================
+
+
+1. O QUE É O BEYOND CRM
+------------------------------------------------------------------------------
+
+O Beyond CRM é um sistema web para equipes de vendas consultivas que trabalham
+com venda de planos com mensalidade recorrente, como associações de proteção
+veicular. Ele organiza toda a jornada do cliente em um só lugar:
+
+    Lead -> Ligação -> Agendamento -> Visita -> Venda -> Carteira
+
+O sistema acompanha cada lead por essas seis etapas, registra todas as
+interações da equipe e transforma esses registros em indicadores, metas e
+relatórios para o gerente. Funciona no computador e no celular, direto no
+navegador, sem instalar nada.
+
+
+2. PARA QUEM É
+------------------------------------------------------------------------------
+
+O sistema tem três perfis, cada um com o que precisa ver:
+
+  - Especialista (vendedor): trabalha os próprios leads, registra ligações,
+    agendamentos, visitas e vendas, e acompanha a própria meta e comissão.
+
+  - Supervisor: acompanha os especialistas que estão sob sua supervisão,
+    com acesso aos leads e aos resultados da equipe dele.
+
+  - Gerente: visão completa da operação, de todas as filiais e equipes,
+    além da configuração de usuários, metas, filiais e tags.
+
+Cada perfil só enxerga os dados que lhe cabem.
+
+
+3. PRINCIPAIS FUNCIONALIDADES
+------------------------------------------------------------------------------
+
+3.1 DASHBOARD
+
+  - Indicadores do período: receita mensal nova, vendas, leads, taxa de
+    conversão e associados na carteira. Cada indicador vem comparado ao
+    período anterior (seta verde = melhorou, vermelha = piorou).
+
+  - Gráfico de evolução de receita, vendas, leads ou ligações, em janelas de
+    7 dias, 30 dias, 90 dias ou 12 meses.
+
+  - Conversão por etapa: quantos por cento dos leads avançam de uma etapa para
+    a próxima, comparados com a meta de conversão definida pelo gerente.
+
+  - Coortes de leads: mostra, para cada semana de entrada, até onde os leads
+    chegaram no funil.
+
+  - Ranking da equipe: vendas de cada especialista no ciclo, contra a meta.
+
+  - Número Mágico: a partir da meta de vendas, o sistema calcula quantos
+    leads, contatos, agendamentos, visitas e recomendações são necessários
+    para chegar lá (proporção 20-12-4-2-1-3), e mostra o realizado.
+
+  - Atingimento de metas: vendas e mensalidade acumuladas da equipe e de cada
+    especialista no ciclo de comissão, com os degraus de bonificação (Super
+    Meta, Power Meta e The King).
+
+  - Filtros por período (hoje, semana, mês, 90 dias, trimestre, ano, ciclo de
+    comissão ou data personalizada), por usuário e por fonte do lead.
+
+
+3.2 PROCESSO DE VENDAS (FUNIL EM KANBAN)
+
+  - Seis colunas, uma por etapa. Cada card mostra código do lead, nome,
+    telefone, número de tentativas, tags, fonte, responsável e, quando há,
+    a data do agendamento (com alerta de atrasado / amanhã).
+
+  - Cadastro de lead com 17 fontes de origem (site, redes sociais,
+    recomendação de associado, carteira, inativos etc.) e detecção automática
+    de telefone duplicado antes de salvar.
+
+  - Importação de carteira por planilha Excel, com prévia, validação de cada
+    linha e checagem de duplicidade.
+
+  - Filtros avançados (responsável, fonte, tags, unidade, data de criação),
+    ordenação manual dos cards e seleção de vários cards de uma vez.
+
+  - Transferência de leads entre vendedores (individual ou em lote, com
+    motivo registrado), compartilhamento de um lead com outro usuário,
+    arquivamento e restauração.
+
+  - Avanço automático: quando a data de um agendamento passa, o lead vai
+    sozinho para a etapa de Visita.
+
+
+3.3 AS SEIS ETAPAS DO LEAD
+
+  Ao abrir um card, o lead mostra uma aba para cada etapa:
+
+  1. Lead: dados de entrada, fonte, quem indicou e dados do veículo (placa,
+     valor FIPE, mensalidade estimada).
+
+  2. Ligação: registro de cada tentativa, com data e resultado.
+     Sem contato: não atendeu, número errado, pediu para retornar.
+     Com contato: não agendou ou agendamento. O sistema conta as tentativas
+     e avisa quando o lead se aproxima do limite para remarketing.
+
+  3. Agendamento: data e hora da visita, local (interno, externo ou online),
+     categoria do veículo e checklist de confirmação com quem fez cada item.
+
+  4. Visita: resultado da visita. As opções são delay, C2 (decisão com um
+     terceiro), não fechou (com a objeção registrada) e venda.
+
+  5. Venda: placa, valor de adesão, mensalidade, rastreador, data da venda,
+     aniversário do associado, checklist pós-venda e pedido de recomendações.
+     Permite duplicar o cadastro quando o cliente tem mais de um veículo.
+
+  6. Carteira: relacionamento com o associado. Registra pedidos de
+     recomendação e ações de "cuidar da base" (aniversários, férias,
+     campanhas, lembrete de benefícios).
+
+  Observações e tags acompanham o lead em todas as etapas.
+
+
+3.4 AGENDA
+
+  - Calendário semanal ou diário com todas as visitas agendadas.
+  - Linha do horário atual, cor por especialista e detalhes ao clicar.
+  - Filtros por especialista, unidade e período.
+
+
+3.5 HISTÓRICO
+
+  - Linha do tempo de todas as interações: ligações, agendamentos, visitas,
+    vendas e carteira.
+  - Filtros por tipo, especialista, unidade, período e código do lead.
+
+
+3.6 RELATÓRIOS
+
+  - Exportação para Excel, já formatada: leads por etapa, histórico de
+    ligações, vendas do mês, carteira de associados, conversão do funil,
+    desempenho por especialista, leads por fonte e relatório completo.
+  - Taxa de conversão por etapa, com o principal gargalo do funil destacado.
+  - Aniversariantes da carteira, com atalho para ligar ou enviar mensagem de
+    parabéns pelo WhatsApp e controle de quem já foi parabenizado.
+  - Desempenho detalhado por especialista e relatório analítico de leads.
+
+
+3.7 CURRÍCULOS
+
+  - Gestão do processo seletivo: cadastro de candidatos, cargo e área,
+    status (recebido, em análise, entrevista, aprovado, reprovado), nota,
+    observações e anexo do currículo em PDF.
+
+
+3.8 CONFIGURAÇÕES
+
+  - Minha performance: meta, vendas do ciclo e comissão prevista.
+  - Comissão da equipe por ciclo, com os degraus de bonificação.
+  - Usuários: cadastro, perfil, filial, metas (inclusive histórico de metas
+    por mês), vínculo de supervisor com especialistas, inativação.
+  - Filiais, tags coloridas e metas de conversão do funil.
+  - Histórico de alterações: auditoria de quem mudou o quê e quando.
+
+
+3.9 RECURSOS GERAIS
+
+  - Busca global por nome, telefone ou código do lead.
+  - Notificações no sino (agendamentos, transferências, vendas).
+  - Atualização em tempo real: o que um usuário registra aparece para os
+    outros sem precisar recarregar a página.
+  - Wiki interna com o passo a passo de cada tela e as regras de negócio.
+  - Ciclo de comissão configurado de 26 a 25 de cada mês.
+
+
+3.10 VISUAL E USO NO CELULAR
+
+  - Dois temas de cores, trocados por um botão no cabeçalho:
+    Laranja (preto e laranja) e Violeta (painel com cards, gráfico de barras,
+    insight do período, últimas vendas e origem das vendas).
+  - Totalmente responsivo: no celular, o menu vira gaveta, o funil rola
+    coluna por coluna, os formulários abrem em tela cheia e, no tema Violeta,
+    há uma barra de navegação na parte de baixo.
+
+  Observação: o "Insight do período" é um resumo automático montado por regras
+  sobre os dados (variação da receita, líder do ciclo, etapa abaixo da meta).
+  Ele não usa inteligência artificial.
+
+
+4. VERSÃO DE DEMONSTRAÇÃO
+------------------------------------------------------------------------------
+
+A demonstração roda com dados 100% fictícios (260 leads, equipe de 11 pessoas
+e 5 filiais) e não se conecta a nenhum banco real.
+
+  - Abre direto, sem login, como gerente.
+  - A barra "DEMO" permite ver o sistema como supervisor ou especialista e
+    resetar os dados a qualquer momento.
+  - Tudo pode ser testado: cadastrar e avançar leads, registrar vendas,
+    transferir, exportar relatórios. As alterações ficam só na aba do
+    navegador e somem ao fechá-la.
+  - A pasta "print" traz 32 imagens das telas e etapas, para consulta rápida.
+
+
+5. INFORMAÇÕES TÉCNICAS (RESUMO)
+------------------------------------------------------------------------------
+
+  - Aplicação web (HTML, CSS e JavaScript, com Bootstrap), acessada pelo
+    navegador em computador, tablet ou celular.
+  - Em produção, os dados ficam em banco PostgreSQL gerenciado (Supabase),
+    com autenticação, armazenamento de arquivos e atualização em tempo real.
+  - Segurança: login por usuário, regras de acesso por perfil aplicadas no
+    próprio banco, sessão encerrada ao fechar a aba, recuperação de senha
+    por e-mail e registro de auditoria das alterações.
+  - Exportações em Excel geradas no próprio navegador.
+
+
+==============================================================================
+Beyond Bits Tecnologia - Beyond CRM, versão 2.0 (outubro de 2026)
+==============================================================================
